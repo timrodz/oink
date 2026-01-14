@@ -284,6 +284,7 @@ erDiagram
 - Error handling
 - Loading states
 - Visual refinements
+- Fully automated type sharing between Rust and TypeScript. Look into `tauri-specta` or `ts-rs`.
 
 ---
 

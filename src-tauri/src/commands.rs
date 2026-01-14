@@ -21,12 +21,12 @@ pub async fn update_user_settings(
     state: State<'_, AppState>,
     name: String,
     home_currency: String,
+    theme: String,
 ) -> Result<UserSettings, String> {
-    // In this singleton context, we need to find the ID if it exists
-    let existing = UserSettingsService::get_all(&state.db).await?;
-    let id = existing.first().map(|s| s.id.clone());
-
-    UserSettingsService::upsert(&state.db, id, name, home_currency).await
+    let pool = &state.db;
+    UserSettingsService::upsert(pool, name, home_currency, theme)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 // --- Accounts ---

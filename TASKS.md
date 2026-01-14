@@ -17,15 +17,16 @@
 - [x] Create migration: currency_rates table
 - [x] Implement Rust models and DTOs for all entities
 - [x] Implement Rust backend commands for all CRUD operations
-- [ ] Setup React routing and app structure
+- [x] Setup React routing and app structure
 
 ## Phase 2: User Onboarding
 
-- [ ] Detect first-time user (no settings in DB)
-- [ ] Create SettingsForm component (name, home currency)
-- [ ] Implement get_user_settings command
-- [ ] Implement update_user_settings command
-- [ ] Auto-redirect to setup on first launch
+- [x] Detect first-time user (no settings in DB)
+- [x] Create SettingsForm component (name, home currency)
+- [x] Implement get_user_settings command
+- [x] Implement update_user_settings command
+- [x] Auto-redirect to setup on first launch
+- [x] Implement a theme provider for light, dark, system options
 
 ## Phase 3: Account Management
 

@@ -8,6 +8,7 @@ pub struct UserSettings {
     pub id: String,
     pub name: String,
     pub home_currency: String,
+    pub theme: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
