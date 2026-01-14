@@ -8,15 +8,15 @@
 
 ## Phase 1: Foundation & Core Data Layer
 
-- [ ] Add sqlx + SQLite dependencies to Cargo.toml
-- [ ] Setup database connection and migrations infrastructure
-- [ ] Create migration: user_settings table
-- [ ] Create migration: accounts table
-- [ ] Create migration: balance_sheets table
-- [ ] Create migration: entries table
-- [ ] Create migration: currency_rates table
-- [ ] Implement Rust models for all entities
-- [ ] Implement basic CRUD Tauri commands
+- [x] Add sqlx version 0.8 + SQLite dependencies to Cargo.toml
+- [x] Setup database connection and migrations infrastructure
+- [x] Create migration: user_settings table
+- [x] Create migration: accounts table
+- [x] Create migration: balance_sheets table
+- [x] Create migration: entries table
+- [x] Create migration: currency_rates table
+- [x] Implement Rust models and DTOs for all entities
+- [x] Implement Rust backend commands for all CRUD operations
 - [ ] Setup React routing and app structure
 
 ## Phase 2: User Onboarding
