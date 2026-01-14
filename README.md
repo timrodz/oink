@@ -8,7 +8,7 @@ This template should help get you started developing with Tauri, React and Types
 
 ## Requirements
 
-- `rust`
+- `rust` version 1.90.0
 
 Cargo containers:
 
