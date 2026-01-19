@@ -1,14 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { formatCurrency } from "@/lib/utils";
+import { formatDecimal2Digits } from "@/lib/currency-formatting";
+import { MonthlyTotal } from "@/lib/types";
 import { getGrowth } from "../lib/calculations";
-
-interface MonthlyTotal {
-  month: number;
-  totalAssets: number;
-  totalLiabilities: number;
-  netWorth: number;
-  hasMissingRates: boolean;
-}
 
 interface TotalsSectionProps {
   monthlyTotals: MonthlyTotal[];
@@ -38,7 +31,7 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4 text-sm">
-            {formatCurrency(t.totalAssets)}
+            {formatDecimal2Digits(t.totalAssets)}
             {t.hasMissingRates && <Warning />}
           </TableCell>
         ))}
@@ -50,7 +43,7 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4 text-sm">
-            {formatCurrency(t.totalLiabilities)}
+            {formatDecimal2Digits(t.totalLiabilities)}
             {t.hasMissingRates && <Warning />}
           </TableCell>
         ))}
@@ -62,7 +55,7 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4">
-            {formatCurrency(t.netWorth)}
+            {formatDecimal2Digits(t.netWorth)}
             {t.hasMissingRates && <Warning />}
           </TableCell>
         ))}

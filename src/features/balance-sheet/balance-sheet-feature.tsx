@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MONTHS } from "@/constants/months";
+import { MONTHS } from "@/lib/constants";
 import {
   useAccounts,
   useCurrencyRates,
@@ -67,13 +67,13 @@ export function BalanceSheetFeature({
   const handleEntryChange = async (
     accountId: string,
     month: number,
-    amount: number
+    amount: number,
   ) => {
     // Optimistic update
     const previousEntries = [...entries];
     setEntries((prev) => {
       const existingIndex = prev.findIndex(
-        (e) => e.accountId === accountId && e.month === month
+        (e) => e.accountId === accountId && e.month === month,
       );
       if (existingIndex >= 0) {
         const newEntries = [...prev];
@@ -108,7 +108,7 @@ export function BalanceSheetFeature({
   const handleRateChange = async (
     fromCurrency: string,
     month: number,
-    rate: number
+    rate: number,
   ) => {
     // Find existing rate to get ID
     const existingRate = rates.find(
@@ -116,7 +116,7 @@ export function BalanceSheetFeature({
         r.fromCurrency === fromCurrency &&
         r.toCurrency === homeCurrency &&
         r.month === month &&
-        r.year === balanceSheet.year
+        r.year === balanceSheet.year,
     );
 
     // Optimistic update
@@ -127,7 +127,7 @@ export function BalanceSheetFeature({
           r.fromCurrency === fromCurrency &&
           r.toCurrency === homeCurrency &&
           r.month === month &&
-          r.year === balanceSheet.year
+          r.year === balanceSheet.year,
       );
 
       const newRateObj = {
@@ -156,7 +156,7 @@ export function BalanceSheetFeature({
         homeCurrency,
         rate,
         month,
-        balanceSheet.year
+        balanceSheet.year,
       );
       refetchRates();
     } catch (e) {
@@ -168,7 +168,7 @@ export function BalanceSheetFeature({
   const { assets, liabilities } = useMemo(() => {
     const assetsList = accounts.filter((a) => a.accountType === "Asset");
     const liabilitiesList = accounts.filter(
-      (a) => a.accountType === "Liability"
+      (a) => a.accountType === "Liability",
     );
 
     return {
@@ -183,18 +183,18 @@ export function BalanceSheetFeature({
       entries,
       rates,
       balanceSheet.year,
-      homeCurrency
+      homeCurrency,
     );
   }, [entries, accounts, rates, balanceSheet.year, homeCurrency]);
 
   const isLoading =
-    accountsLoading ||
-    (entriesLoading && entries.length === 0) ||
-    ratesLoading;
+    accountsLoading || (entriesLoading && entries.length === 0) || ratesLoading;
 
   const foreignCurrencies = useMemo(() => {
     return Array.from(
-      new Set(accounts.map((a) => a.currency).filter((c) => c !== homeCurrency))
+      new Set(
+        accounts.map((a) => a.currency).filter((c) => c !== homeCurrency),
+      ),
     );
   }, [accounts, homeCurrency]);
 

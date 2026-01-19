@@ -133,6 +133,25 @@
 - [x] Default new rates to 1.0
 - [x] Apply conversion in totals calculation
 
+### 5.1 Automated Rate Sync 🔄
+
+- [x] Implement `syncExchangeRates` service using Frankfurter API (Backend-side)
+  - Endpoint: `https://api.frankfurter.dev/v1/YYYY-01-01..YYYY-12-31`
+  - Params: `?base={HomeCurrency}&symbols={ForeignCurrencies}`
+  - Logic: Fetch `Home->Foreign` rates, invert (`1/rate`) to get `Foreign->Home`, and upsert.
+- [x] Remove frontend triggers (Moved to backend-only)
+- [x] Auto-trigger sync on App Launch (background)
+- [x] Auto-trigger sync on Balance Sheet creation
+- [x] Filter requests by existing Balance Sheet years and active foreign currencies
+
+**Acceptance Criteria:**
+
+- [x] **Persistence**: All fetched rates must be successfully saved to the SQLite database via `upsert_currency_rate`.
+- [x] **Single Source of Truth**: The application must only consume rates from the database, never directly from the API response for display.
+- [x] **Silent Failure**: If the API call fails or network is down, the app should continue normal operation without blocking the user.
+- [x] Updates the grid values immediately after sync (via re-fetch from DB).
+- [x] Rate is stored as 1.0 if API has no data for that specific month/pair.
+
 ## Phase 6: Net Worth Dashboard
 
 - [ ] Calculate net worth per month (assets - liabilities)

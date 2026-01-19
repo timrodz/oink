@@ -41,3 +41,11 @@ export interface CurrencyRate {
   year: number;
   timestamp: string;
 }
+
+export interface MonthlyTotal {
+  month: number;
+  totalAssets: number;
+  totalLiabilities: number;
+  netWorth: number;
+  hasMissingRates: boolean;
+}

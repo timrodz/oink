@@ -1,6 +1,14 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MONTHS } from "@/lib/constants";
+import {
+  formatCurrency,
+  formatCurrencyCompact,
+} from "@/lib/currency-formatting";
+import { MonthlyTotal } from "@/lib/types";
 import {
   CategoryScale,
   Chart as ChartJS,
+  ChartOptions,
   Filler,
   Legend,
   LinearScale,
@@ -11,9 +19,6 @@ import {
 } from "chart.js";
 import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MONTHS } from "@/constants/months";
-import { MonthlyTotal } from "../lib/calculations";
 
 ChartJS.register(
   CategoryScale,
@@ -23,7 +28,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
 interface BalanceSheetChartProps {
@@ -54,7 +59,7 @@ export function BalanceSheetChart({
     };
   }, [monthlyTotals]);
 
-  const options = {
+  const options: ChartOptions<"line"> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -67,16 +72,13 @@ export function BalanceSheetChart({
       },
       tooltip: {
         callbacks: {
-          label: function (context: any) {
+          label: function (context) {
             let label = context.dataset.label || "";
             if (label) {
               label += ": ";
             }
             if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: homeCurrency,
-              }).format(context.parsed.y);
+              label += formatCurrency(context.parsed.y, homeCurrency);
             }
             return label;
           },
@@ -90,13 +92,8 @@ export function BalanceSheetChart({
           color: "hsl(var(--muted))",
         },
         ticks: {
-          callback: function (value: any) {
-            return new Intl.NumberFormat("en-US", {
-              notation: "compact",
-              compactDisplay: "short",
-              style: "currency",
-              currency: homeCurrency,
-            }).format(value);
+          callback: function (value) {
+            return formatCurrencyCompact(+value, homeCurrency);
           },
         },
       },

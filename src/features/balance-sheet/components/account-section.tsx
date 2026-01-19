@@ -1,5 +1,5 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { MONTHS } from "@/constants/months";
+import { MONTHS } from "@/lib/constants";
 import { Account, Entry } from "@/lib/types";
 import { memo, useCallback, useMemo } from "react";
 import { EditableCell } from "./editable-cell";
@@ -10,7 +10,7 @@ interface AccountSectionProps {
   onEntryChange: (
     accountId: string,
     month: number,
-    amount: number
+    amount: number,
   ) => Promise<void>;
 }
 
@@ -18,10 +18,11 @@ interface AccountCellProps {
   accountId: string;
   month: number;
   amount: number | undefined;
+  currency: string;
   onEntryChange: (
     accountId: string,
     month: number,
-    amount: number
+    amount: number,
   ) => Promise<void>;
 }
 
@@ -58,6 +59,7 @@ export function AccountSection({
                     accountId={account.id}
                     month={month}
                     amount={amount}
+                    currency={account.currency}
                     onEntryChange={onEntryChange}
                   />
                 </div>
@@ -71,15 +73,21 @@ export function AccountSection({
 }
 
 const AccountCell = memo(
-  ({ accountId, month, amount, onEntryChange }: AccountCellProps) => {
+  ({ accountId, month, amount, currency, onEntryChange }: AccountCellProps) => {
     const handleChange = useCallback(
       (value: number) => {
         return onEntryChange(accountId, month, value);
       },
-      [accountId, month, onEntryChange]
+      [accountId, month, onEntryChange],
     );
 
-    return <EditableCell value={amount} onChange={handleChange} />;
-  }
+    return (
+      <EditableCell
+        value={amount}
+        currency={currency}
+        onChange={handleChange}
+      />
+    );
+  },
 );
 AccountCell.displayName = "AccountCell";

@@ -26,7 +26,7 @@ impl BalanceSheetService {
     pub async fn upsert(
         pool: &SqlitePool,
         id: Option<String>,
-        year: i64,
+        year: i32,
     ) -> Result<BalanceSheet, String> {
         // Check if year already exists
         // This application-level check is useful for fast feedback, but the DB constraint is the authority.
@@ -40,10 +40,10 @@ impl BalanceSheetService {
         if let Some(existing) = existing_year {
             if let Some(ref uid) = id {
                 if existing.id != *uid {
-                    return Err(format!("Balance sheet for year {} already exists", year));
+                    return Err(format!("Balance sheet for year {year} already exists"));
                 }
             } else {
-                return Err(format!("Balance sheet for year {} already exists", year));
+                return Err(format!("Balance sheet for year {year} already exists"));
             }
         }
 
@@ -61,7 +61,7 @@ impl BalanceSheetService {
                 .bind(uid)
                 .fetch_one(pool)
                 .await
-                .map_err(|e| Self::handle_db_error(e, year));
+                .map_err(|e| Self::handle_db_error(&e, year));
             }
         }
 
@@ -74,7 +74,7 @@ impl BalanceSheetService {
         .bind(now)
         .fetch_one(pool)
         .await
-        .map_err(|e| Self::handle_db_error(e, year))
+        .map_err(|e| Self::handle_db_error(&e, year))
     }
 
     // DELETE
@@ -87,13 +87,13 @@ impl BalanceSheetService {
         Ok(())
     }
 
-    fn handle_db_error(e: sqlx::Error, year: i64) -> String {
+    fn handle_db_error(e: &sqlx::Error, year: i32) -> String {
         if let sqlx::Error::Database(db_err) = &e {
             // Check for unique constraint violation.
             // SQLite error code 2067 is SQLITE_CONSTRAINT_UNIQUE
             // sqlx 0.8 might expose .is_unique_violation() or similar
             if db_err.is_unique_violation() {
-                return format!("Balance sheet for year {} already exists", year);
+                return format!("Balance sheet for year {year} already exists");
             }
         }
         e.to_string()
@@ -163,21 +163,23 @@ mod tests {
         // This verifies the schema itself has the constraint
         let id = Uuid::new_v4().to_string();
         let now = chrono::Utc::now();
-        let direct_insert = sqlx::query(
-            "INSERT INTO balance_sheets (id, year, created_at) VALUES (?, ?, ?)",
-        )
-        .bind(id)
-        .bind(2025) // Duplicate year
-        .bind(now)
-        .execute(&pool)
-        .await;
+        let direct_insert =
+            sqlx::query("INSERT INTO balance_sheets (id, year, created_at) VALUES (?, ?, ?)")
+                .bind(id)
+                .bind(2025) // Duplicate year
+                .bind(now)
+                .execute(&pool)
+                .await;
 
         assert!(direct_insert.is_err());
         let err = direct_insert.unwrap_err();
         if let sqlx::Error::Database(db_err) = err {
-             assert!(db_err.is_unique_violation(), "Expected unique violation from DB");
+            assert!(
+                db_err.is_unique_violation(),
+                "Expected unique violation from DB"
+            );
         } else {
-             panic!("Expected Database error, got {:?}", err);
+            panic!("Expected Database error, got {:?}", err);
         }
     }
 }

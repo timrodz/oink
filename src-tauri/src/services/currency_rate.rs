@@ -18,8 +18,8 @@ impl CurrencyRateService {
     // LIST BY YEAR & MONTH
     pub async fn get_by_date(
         pool: &SqlitePool,
-        year: i64,
-        month: i64,
+        year: i32,
+        month: i32,
     ) -> Result<Vec<CurrencyRate>, String> {
         sqlx::query_as::<_, CurrencyRate>(
             "SELECT * FROM currency_rates WHERE year = ? AND month = ?",
@@ -50,8 +50,8 @@ impl CurrencyRateService {
         from_currency: String,
         to_currency: String,
         rate: f64,
-        month: i64,
-        year: i64,
+        month: u32,
+        year: i32,
     ) -> Result<CurrencyRate, String> {
         let now = chrono::Utc::now();
 

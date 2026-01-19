@@ -39,7 +39,7 @@ impl EntryService {
         pool: &SqlitePool,
         balance_sheet_id: String,
         account_id: String,
-        month: i64,
+        month: i32,
         amount: f64,
     ) -> Result<Entry, String> {
         let existing: Option<Entry> = sqlx::query_as(

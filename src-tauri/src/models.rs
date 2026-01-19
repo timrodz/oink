@@ -27,7 +27,7 @@ pub struct Account {
 #[serde(rename_all = "camelCase")]
 pub struct BalanceSheet {
     pub id: String,
-    pub year: i64,
+    pub year: i32,
     pub created_at: DateTime<Utc>,
 }
 
@@ -37,7 +37,7 @@ pub struct Entry {
     pub id: String,
     pub balance_sheet_id: String,
     pub account_id: String,
-    pub month: i64,
+    pub month: u32,
     pub amount: f64,
     pub updated_at: DateTime<Utc>,
 }
@@ -49,7 +49,7 @@ pub struct CurrencyRate {
     pub from_currency: String,
     pub to_currency: String,
     pub rate: f64,
-    pub month: i64,
-    pub year: i64,
+    pub month: u32,
+    pub year: i32,
     pub timestamp: DateTime<Utc>,
 }

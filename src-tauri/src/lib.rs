@@ -3,6 +3,7 @@ use std::fs;
 use tauri::Manager;
 
 mod commands;
+pub mod constants;
 mod models;
 mod services;
 
@@ -12,6 +13,9 @@ struct AppState {
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+// # Panics
+//
+// Will panic if the app crashes
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
@@ -44,6 +48,19 @@ pub fn run() {
                     .run(&pool)
                     .await
                     .expect("failed to run migrations");
+
+                // Sync exchange rates on boot (background)
+                let pool_clone = pool.clone();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(e) =
+                        crate::services::currency_exchange_sync::SyncService::sync_exchange_rates(
+                            &pool_clone,
+                        )
+                        .await
+                    {
+                        eprintln!("Failed to sync exchange rates on boot: {e}");
+                    }
+                });
 
                 // Manage the pool in Tauri state
                 app.manage(AppState { db: pool });

@@ -4,7 +4,18 @@ description: When working with backend or rust files
 globs: *.rs, *.sql
 ---
 
-- Use clean code practices
+# Backend rules
+
 - Keep database transactions ACID-compliant
-- Add or update unit tests for every piece of code, even if not asked
-- After editing a file always run `cargo check` to verify and fix errors
+- Add or update unit tests for every piece of co de, even if not asked
+- Never define magic numbers or strings, store them as variables
+- Always use descriptive variable names
+- When finishing a task check TASKS.md and check off what you have completed, ensuring you meet acceptance criteria as well
+- Use early return pattern
+- Big chunks of code need to be split into separate functions with single responsibility principle
+
+## Rust
+
+- After editing a file always run `cargo clippy` to verify lints and fix errors
+- Use variables directly in the `format!` string
+- Avoid mutability, `let value` over `let mut value`

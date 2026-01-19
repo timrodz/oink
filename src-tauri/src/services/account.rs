@@ -42,8 +42,8 @@ impl AccountService {
 
         // Check for unique name
         if let Some(existing) = Self::get_by_name(pool, name.clone()).await? {
-            if id.as_ref().map_or(true, |uid| uid != &existing.id) {
-                return Err(format!("Account with name '{}' already exists", name));
+            if id.as_ref() != Some(&existing.id) {
+                return Err(format!("Account with name '{name}' already exists"));
             }
         }
 

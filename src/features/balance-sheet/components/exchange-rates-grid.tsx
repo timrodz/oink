@@ -5,9 +5,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RateRow } from "./rate-row";
-import { MONTHS } from "@/constants/months";
+import { MONTHS } from "@/lib/constants";
 import { CurrencyRate } from "@/lib/types";
+import { RateRow } from "./rate-row";
 
 interface ExchangeRatesGridProps {
   currencies: string[];
@@ -16,7 +16,7 @@ interface ExchangeRatesGridProps {
   onRateChange: (
     fromCurrency: string,
     month: number,
-    rate: number
+    rate: number,
   ) => Promise<void>;
   containerRef?: React.RefObject<HTMLDivElement | null>;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
@@ -59,7 +59,7 @@ export function ExchangeRatesGrid({
               homeCurrency={homeCurrency}
               rates={rates.filter(
                 (r) =>
-                  r.fromCurrency === currency && r.toCurrency === homeCurrency
+                  r.fromCurrency === currency && r.toCurrency === homeCurrency,
               )}
               onRateChange={(month, rate) =>
                 onRateChange(currency, month, rate)

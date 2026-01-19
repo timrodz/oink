@@ -35,7 +35,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
     setLoading(true);
     try {
       const data = await api.getAllAccounts();
-      setAccounts(data);
+      setAccounts(data.sort((a) => (a.accountType === "Asset" ? -1 : 1)));
     } catch (error) {
       console.error("Failed to fetch accounts:", error);
     } finally {

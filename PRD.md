@@ -108,7 +108,17 @@ flowchart TD
 
 - **Default**: 1.0 for same-currency or new rates
 - Stored per account-currency/month/year combination
-- Future: Auto-fetch from public API
+- **Automation**: Fetches end-of-month rates from **Frankfurter API** (public/free).
+  - **Endpoint**: `https://api.frankfurter.dev/v1/{start}..{end}`
+  - **Parameters**: 
+    - `base`: Set to user's **Home Currency** (e.g., `USD`).
+    - `symbols`: Comma-separated list of **Foreign Currencies** used in accounts (e.g., `EUR,GBP,NZD`).
+  - **Efficiency**: Allows fetching rates for *all* foreign currencies in a single HTTP request per year.
+  - **Calculation**: API returns `Home->Foreign` rates. We invert them (`1 / rate`) to get the required `Foreign->Home` multipliers.
+  - **Example**: 
+    - Request: `https://api.frankfurter.dev/v1/2024-01-01..2024-12-31?base=USD&symbols=EUR,GBP`
+    - Returns: `USD -> EUR: 0.92`
+    - Store: `EUR -> USD: 1.087` (1 / 0.92)
 
 ---
 
@@ -299,7 +309,6 @@ erDiagram
 
 ### Automation
 
-- [ ] **Auto Currency Rates** - Fetch end-of-month rates from public APIs (exchangerate-api, fixer.io)
 - [ ] **Recurring Entries** - Auto-populate expected monthly balances
 - [ ] **Bank Integration** - Plaid/open banking connections (privacy-optional)
 

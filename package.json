@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "bunx eslint src -c src/eslint.config.js",
+    "lint": "bunx eslint src",
     "tauri": "tauri"
   },
   "dependencies": {

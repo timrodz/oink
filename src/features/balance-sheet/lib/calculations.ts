@@ -1,22 +1,15 @@
-import { Account, CurrencyRate, Entry } from "@/lib/types";
-import { formatCurrency } from "@/lib/utils";
-
-export interface MonthlyTotal {
-  month: number;
-  totalAssets: number;
-  totalLiabilities: number;
-  netWorth: number;
-  hasMissingRates: boolean;
-}
+import { MONTHS } from "@/lib/constants";
+import { formatDecimal2Digits } from "@/lib/currency-formatting";
+import { Account, CurrencyRate, Entry, MonthlyTotal } from "@/lib/types";
 
 export const calculateMonthlyTotals = (
   accounts: Account[],
   entries: Entry[],
   rates: CurrencyRate[],
   balanceSheetYear: number,
-  homeCurrency: string
+  homeCurrency: string,
 ): MonthlyTotal[] => {
-  const totals = Array.from({ length: 12 }, (_, i) => ({
+  const totals = MONTHS.map((_, i) => ({
     month: i + 1,
     totalAssets: 0,
     totalLiabilities: 0,
@@ -42,7 +35,7 @@ export const calculateMonthlyTotals = (
     if (!account) return;
 
     const monthIndex = entry.month - 1;
-    if (monthIndex >= 0 && monthIndex < 12) {
+    if (monthIndex >= 0 && monthIndex < MONTHS.length) {
       let amount = entry.amount;
       let isRateMissing = false;
 
@@ -82,20 +75,20 @@ export const calculateMonthlyTotals = (
 export const getEntryValue = (
   account: Account,
   month: number,
-  entries: Entry[]
+  entries: Entry[],
 ) => {
   const entry = entries.find(
-    (e) => e.accountId === account.id && e.month === month
+    (e) => e.accountId === account.id && e.month === month,
   );
   if (!entry) return "";
 
-  return formatCurrency(entry.amount);
+  return formatDecimal2Digits(entry.amount);
 };
 
 export const getEntryAmount = (
   account: Account,
   month: number,
-  entries: Entry[]
+  entries: Entry[],
 ) => {
   return entries.find((e) => e.accountId === account.id && e.month === month)
     ?.amount;
@@ -103,7 +96,7 @@ export const getEntryAmount = (
 
 export const getGrowth = (
   monthIndex: number,
-  monthlyTotals: MonthlyTotal[]
+  monthlyTotals: MonthlyTotal[],
 ) => {
   if (monthIndex <= 0 || monthIndex >= monthlyTotals.length) {
     return "—";
@@ -112,7 +105,7 @@ export const getGrowth = (
   const prev = monthlyTotals[monthIndex - 1].netWorth;
   const diff = current - prev;
   const symbol = diff > 0 ? "+" : "";
-  const formattedDiff = `${symbol}${formatCurrency(diff)}`;
+  const formattedDiff = `${symbol}${formatDecimal2Digits(diff)}`;
 
   if (prev === 0) {
     return formattedDiff;

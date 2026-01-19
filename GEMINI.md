@@ -57,7 +57,7 @@ This file serves as the primary context for AI agents working on this project.
 
 **Prerequisites:**
 
-- Node.js (via Bun/npm/pnpm)
+- Node.js (via Bun)
 - Rust (v1.90.0+)
 - Tauri CLI
 
@@ -65,7 +65,8 @@ This file serves as the primary context for AI agents working on this project.
 
 - **Dev Server:** `cargo tauri dev` (Runs frontend and backend in dev mode)
 - **Build:** `cargo tauri build`
-- **Linting:** `npm run lint`
+- **Frontend Linting:** `bun run lint`
+- **Backend Linting:** `cargo clippy --manifest-path src-tauri/Cargo.toml`
 
 ## 5. Current Project Status
 
@@ -75,14 +76,7 @@ This file serves as the primary context for AI agents working on this project.
 - ✅ Phase 1: Foundation (DB, Models)
 - ✅ Phase 2: User Onboarding (Settings)
 - ✅ Phase 3: Account Management (CRUD)
-
-**In Progress (Phase 4 - Balance Sheet Core):**
-
-- ✅ Year Selector & Balance Sheet creation.
-- ✅ Grid Component (Layout, Grouping).
-- 🚧 Real-time calculations (Net Worth, Totals).
-- 🚧 Currency conversion integration in grid.
-- 📅 Next: Chart.js integration.
+- ✅ Phase 4: Balance Sheet Core
 
 **Reference Documents:**
 

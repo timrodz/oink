@@ -72,9 +72,21 @@ pub async fn get_balance_sheets(state: State<'_, AppState>) -> Result<Vec<Balanc
 #[tauri::command]
 pub async fn create_balance_sheet(
     state: State<'_, AppState>,
-    year: i64,
+    year: i32,
 ) -> Result<BalanceSheet, String> {
-    BalanceSheetService::upsert(&state.db, None, year).await
+    let sheet = BalanceSheetService::upsert(&state.db, None, year).await?;
+
+    // Trigger background sync
+    let pool = state.db.clone();
+    tauri::async_runtime::spawn(async move {
+        if let Err(e) =
+            crate::services::currency_exchange_sync::SyncService::sync_exchange_rates(&pool).await
+        {
+            eprintln!("Failed to sync rates after creating balance sheet: {e}");
+        }
+    });
+
+    Ok(sheet)
 }
 
 // --- Entries ---
@@ -92,7 +104,7 @@ pub async fn upsert_entry(
     state: State<'_, AppState>,
     balance_sheet_id: String,
     account_id: String,
-    month: i64,
+    month: i32,
     amount: f64,
 ) -> Result<Entry, String> {
     EntryService::upsert(&state.db, balance_sheet_id, account_id, month, amount).await
@@ -112,8 +124,8 @@ pub async fn upsert_currency_rate(
     from_currency: String,
     to_currency: String,
     rate: f64,
-    month: i64,
-    year: i64,
+    month: u32,
+    year: i32,
 ) -> Result<CurrencyRate, String> {
     crate::services::currency_rate::CurrencyRateService::upsert(
         &state.db,

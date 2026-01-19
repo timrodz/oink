@@ -17,7 +17,7 @@ export function RateRow({
 }: RateRowProps) {
   return (
     <TableRow className="bg-muted/10">
-      <TableCell className="font-medium sticky left-0 text-muted-foreground pl-4 text-xs italic border-r bg-background">
+      <TableCell className="font-medium sticky left-0 text-muted-foreground pl-4 text-xs italic border-r bg-background z-10">
         {currency} ➜ {homeCurrency}
       </TableCell>
       {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {

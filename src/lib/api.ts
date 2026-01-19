@@ -1,15 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
 import { COMMANDS } from "./commands";
 import {
-  UserSettings,
   Account,
   BalanceSheet,
-  Entry,
   CurrencyRate,
+  Entry,
+  UserSettings,
 } from "./types";
 
 // Re-export types for consumers
-export type { UserSettings, Account, BalanceSheet, Entry, CurrencyRate };
+export type { Account, BalanceSheet, CurrencyRate, Entry, UserSettings };
 
 // API Adapter
 export const api = {
@@ -71,7 +71,7 @@ export const api = {
   },
 
   createBalanceSheet: async (year: number): Promise<BalanceSheet> => {
-    // Note: Rust command uses i64, JS number is fine
+    // Note: Rust command uses i32, JS number is fine
     return await invoke(COMMANDS.CREATE_BALANCE_SHEET, { year });
   },
 

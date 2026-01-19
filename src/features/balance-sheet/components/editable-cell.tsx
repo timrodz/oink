@@ -1,12 +1,17 @@
 import { Input } from "@/components/ui/input";
-import { cn, formatCell } from "@/lib/utils";
+import {
+  formatCurrencyRate,
+  formatDecimal2Digits,
+} from "@/lib/currency-formatting";
+import { cn } from "@/lib/utils";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 
 interface EditableCellProps {
   value: number | undefined;
+  // TODO: Will be used later, do not remove
+  currency: string;
   onChange: (value: number) => Promise<void>;
   disabled?: boolean;
-  currency?: string;
   isRate?: boolean;
 }
 
@@ -24,7 +29,11 @@ export function EditableCell({
   // Sync internal state with prop value when not focused
   useEffect(() => {
     if (!isFocused) {
-      setInputValue(formatCell(value, isRate));
+      setInputValue(
+        !isRate && value
+          ? formatDecimal2Digits(value)
+          : formatCurrencyRate(value),
+      );
       setIsValid(true);
     }
   }, [value, isFocused, isRate]);
@@ -101,7 +110,11 @@ export function EditableCell({
 
     if (e.key === "Escape") {
       setIsFocused(false);
-      setInputValue(formatCell(value, isRate));
+      setInputValue(
+        isRate && value
+          ? formatDecimal2Digits(value)
+          : formatCurrencyRate(value),
+      );
       setIsValid(true);
       inputRef.current?.blur();
       return;
@@ -201,7 +214,7 @@ export function EditableCell({
         className={cn(
           "h-8 text-right px-2 py-1 text-sm w-full rounded-sm border-transparent hover:border-border focus:border-primary transition-colors bg-transparent focus:bg-background shadow-none",
           disabled && "opacity-50 cursor-not-allowed focus:border-transparent",
-          !isValid && "border-red-500 focus:border-red-500 text-red-500"
+          !isValid && "border-red-500 focus:border-red-500 text-red-500",
         )}
         placeholder="-"
       />
