@@ -34,6 +34,7 @@
 - [x] Build AccountsList component with edit/delete
 - [x] Implement account CRUD commands
 - [x] Validate unique account names
+- [x] Implement drag-and-drop account reordering
 - [x] Add unit tests to verify logic
 
 ## Phase 4: Balance Sheet Core
