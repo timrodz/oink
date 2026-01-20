@@ -6,8 +6,17 @@ pub struct AccountService;
 
 impl AccountService {
     // LIST
-    pub async fn get_all(pool: &SqlitePool) -> Result<Vec<Account>, String> {
-        sqlx::query_as::<_, Account>("SELECT * FROM accounts ORDER BY sort_order ASC")
+    pub async fn get_all(
+        pool: &SqlitePool,
+        include_archived: bool,
+    ) -> Result<Vec<Account>, String> {
+        let query = if include_archived {
+            "SELECT * FROM accounts ORDER BY sort_order ASC"
+        } else {
+            "SELECT * FROM accounts WHERE is_archived = 0 ORDER BY sort_order ASC"
+        };
+
+        sqlx::query_as::<_, Account>(query)
             .fetch_all(pool)
             .await
             .map_err(|e| e.to_string())
@@ -102,7 +111,6 @@ impl AccountService {
         tx.commit().await.map_err(|e| e.to_string())
     }
 
-    // DELETE
     pub async fn delete(pool: &SqlitePool, id: String) -> Result<(), String> {
         sqlx::query("DELETE FROM accounts WHERE id = ?")
             .bind(id)
@@ -110,6 +118,21 @@ impl AccountService {
             .await
             .map_err(|e| e.to_string())?;
         Ok(())
+    }
+
+    pub async fn toggle_archive(pool: &SqlitePool, id: String) -> Result<Account, String> {
+        let account = Self::get_by_id(pool, id.clone())
+            .await?
+            .ok_or_else(|| format!("Account with ID {id} not found"))?;
+
+        let new_archived_state = !account.is_archived;
+
+        sqlx::query_as::<_, Account>("UPDATE accounts SET is_archived = ? WHERE id = ? RETURNING *")
+            .bind(new_archived_state)
+            .bind(id)
+            .fetch_one(pool)
+            .await
+            .map_err(|e| e.to_string())
     }
 }
 
@@ -136,12 +159,34 @@ mod tests {
         assert_eq!(account.name, "Test Bank");
 
         // 2. Get All
-        let accounts = AccountService::get_all(&pool)
+        let accounts = AccountService::get_all(&pool, true)
             .await
             .expect("Failed to get all");
         assert_eq!(accounts.len(), 1);
 
-        // 3. Update
+        // 3. Toggle Archive
+        let archived = AccountService::toggle_archive(&pool, account.id.clone())
+            .await
+            .expect("Failed to archive");
+        assert!(archived.is_archived);
+
+        let active_only = AccountService::get_all(&pool, false)
+            .await
+            .expect("Failed to get active only");
+        assert_eq!(active_only.len(), 0);
+
+        let all = AccountService::get_all(&pool, true)
+            .await
+            .expect("Failed to get all after archive");
+        assert_eq!(all.len(), 1);
+
+        // Unarchive
+        let unarchived = AccountService::toggle_archive(&pool, account.id.clone())
+            .await
+            .expect("Failed to unarchive");
+        assert!(!unarchived.is_archived);
+
+        // 4. Update
         let updated = AccountService::upsert(
             &pool,
             Some(account.id.clone()),
@@ -156,7 +201,7 @@ mod tests {
         assert_eq!(updated.account_type, "Liability");
         assert_eq!(updated.currency, "AUD");
 
-        // 4. Test Unique Name
+        // 5. Test Unique Name
         let duplicate_result = AccountService::upsert(
             &pool,
             None,
@@ -172,7 +217,7 @@ mod tests {
             "Account with name 'Test Bank Updated' already exists"
         );
 
-        // 5. Delete
+        // 6. Delete
         AccountService::delete(&pool, account.id.clone())
             .await
             .expect("Failed to delete");

@@ -72,6 +72,7 @@ pub fn run() {
             commands::get_user_settings,
             commands::update_user_settings,
             commands::get_all_accounts,
+            commands::toggle_archive_account,
             commands::create_account,
             commands::update_account,
             commands::update_account_order,

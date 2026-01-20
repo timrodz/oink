@@ -30,7 +30,7 @@ impl NetWorthService {
 
         // 2. Fetch all required data
         let entries = crate::services::entry::EntryService::get_all(pool).await?;
-        let accounts = crate::services::account::AccountService::get_all(pool).await?;
+        let accounts = crate::services::account::AccountService::get_all(pool, true).await?;
         let sheets = crate::services::balance_sheet::BalanceSheetService::get_all(pool).await?;
         let rates = crate::services::currency_rate::CurrencyRateService::get_all(pool).await?;
 

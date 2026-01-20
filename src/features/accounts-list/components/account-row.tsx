@@ -21,9 +21,16 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { Account } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Edit2, GripVertical, Trash2 } from "lucide-react";
+import {
+  Archive,
+  ArchiveRestore,
+  Edit2,
+  GripVertical,
+  Trash2,
+} from "lucide-react";
 
 interface AccountRowProps {
   account: Account;
@@ -31,6 +38,7 @@ interface AccountRowProps {
   onEditStart: () => void;
   onEditEnd: () => void;
   onDelete: (id: string) => void;
+  onToggleArchive: (id: string) => void;
   onRefresh: () => void;
 }
 
@@ -40,6 +48,7 @@ export function AccountRow({
   onEditStart,
   onEditEnd,
   onDelete,
+  onToggleArchive,
   onRefresh,
 }: AccountRowProps) {
   const {
@@ -62,7 +71,10 @@ export function AccountRow({
     <TableRow
       ref={setNodeRef}
       style={style}
-      className={isDragging ? "bg-muted" : ""}
+      className={cn(
+        isDragging && "bg-muted",
+        account.isArchived && "opacity-50 grayscale",
+      )}
     >
       <TableCell className="w-[40px]">
         <Button
@@ -96,7 +108,12 @@ export function AccountRow({
             onOpenChange={(open) => !open && onEditEnd()}
           >
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onEditStart}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onEditStart}
+                disabled={account.isArchived}
+              >
                 <Edit2 className="h-4 w-4" />
                 <span className="sr-only">Edit</span>
               </Button>
@@ -117,6 +134,58 @@ export function AccountRow({
               />
             </DialogContent>
           </Dialog>
+
+          {account.isArchived ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" title="Unarchive">
+                  <ArchiveRestore className="h-4 w-4" />
+                  <span className="sr-only">Unarchive</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Unarchive Account?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {`Are you sure you want to unarchive "${account.name}"? It will be shown in your lists again.`}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onToggleArchive(account.id)}
+                  >
+                    Unarchive
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" title="Archive">
+                  <Archive className="h-4 w-4" />
+                  <span className="sr-only">Archive</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Archive Account?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {`Are you sure you want to archive "${account.name}"? It will be hidden from your lists by default but still included in calculations.`}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onToggleArchive(account.id)}
+                  >
+                    Archive
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
 
           <AlertDialog>
             <AlertDialogTrigger asChild>

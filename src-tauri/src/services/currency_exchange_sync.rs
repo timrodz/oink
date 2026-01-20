@@ -25,7 +25,7 @@ impl SyncService {
         let home_currency = &settings.home_currency;
 
         // 2. Get Foreign Currencies from Accounts
-        let accounts = AccountService::get_all(pool).await?;
+        let accounts = AccountService::get_all(pool, true).await?;
         let foreign_currencies: Vec<String> = accounts
             .into_iter()
             .map(|a| a.currency)

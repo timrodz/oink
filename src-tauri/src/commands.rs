@@ -40,8 +40,19 @@ pub async fn update_user_settings(
 // --- Accounts ---
 
 #[tauri::command]
-pub async fn get_all_accounts(state: State<'_, AppState>) -> Result<Vec<Account>, String> {
-    AccountService::get_all(&state.db).await
+pub async fn get_all_accounts(
+    state: State<'_, AppState>,
+    include_archived: bool,
+) -> Result<Vec<Account>, String> {
+    AccountService::get_all(&state.db, include_archived).await
+}
+
+#[tauri::command]
+pub async fn toggle_archive_account(
+    state: State<'_, AppState>,
+    id: String,
+) -> Result<Account, String> {
+    AccountService::toggle_archive(&state.db, id).await
 }
 
 #[tauri::command]
