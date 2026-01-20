@@ -1,3 +1,15 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { BalanceSheetChart } from "@/components/charts/balance-sheet-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,13 +24,15 @@ import { MONTHS } from "@/lib/constants";
 import {
   useAccounts,
   useCurrencyRates,
+  useDeleteBalanceSheet,
   useEntries,
   useUpsertCurrencyRate,
   useUpsertEntry,
 } from "@/lib/queries";
 import { BalanceSheet } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AccountSection } from "./components/account-section";
 import { ExchangeRatesGrid } from "./components/exchange-rates-grid";
 import { TotalsSection } from "./components/totals-section";
@@ -35,6 +49,9 @@ export function BalanceSheetFeature({
   balanceSheet,
   homeCurrency,
 }: BalanceSheetFeatureProps) {
+  const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const { data: accounts, loading: accountsLoading } = useAccounts(true);
   const {
     data: entries,
@@ -43,6 +60,7 @@ export function BalanceSheetFeature({
     setData: setEntries,
   } = useEntries(balanceSheet.id);
   const { mutate: upsertEntry } = useUpsertEntry();
+  const { mutate: deleteBalanceSheet } = useDeleteBalanceSheet();
 
   const {
     data: rates,
@@ -165,6 +183,17 @@ export function BalanceSheetFeature({
     } catch (e) {
       console.error("Failed to update rate:", e);
       setRates(previousRates);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteBalanceSheet(balanceSheet.id);
+      navigate("/");
+    } catch (e) {
+      console.error("Failed to delete balance sheet:", e);
+      setIsDeleting(false);
     }
   };
 
@@ -339,6 +368,49 @@ export function BalanceSheetFeature({
           </TableBody>
         </Table>
       </div>
+
+      {/* DANGER ZONE */}
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Delete this balance sheet</p>
+              <p className="text-sm text-muted-foreground">
+                Once deleted, all data for {balanceSheet.year} will be
+                permanently removed. This action cannot be undone.
+              </p>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={isDeleting}>
+                  {isDeleting ? "Deleting..." : "Delete Balance Sheet"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the {balanceSheet.year} balance
+                    sheet and all its entries. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

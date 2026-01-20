@@ -94,6 +94,10 @@ export const api = {
     return await invoke(COMMANDS.CREATE_BALANCE_SHEET, { year });
   },
 
+  deleteBalanceSheet: async (id: string): Promise<void> => {
+    await invoke(COMMANDS.DELETE_BALANCE_SHEET, { id });
+  },
+
   // Entries
   getEntries: async (balanceSheetId: string): Promise<Entry[]> => {
     return await invoke(COMMANDS.GET_ENTRIES, { balanceSheetId });

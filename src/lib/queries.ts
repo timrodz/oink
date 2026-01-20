@@ -96,6 +96,26 @@ export function useCreateBalanceSheet() {
   return { mutate: createBalanceSheet, loading, error };
 }
 
+export function useDeleteBalanceSheet() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const deleteBalanceSheet = async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await api.deleteBalanceSheet(id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { mutate: deleteBalanceSheet, loading, error };
+}
+
 export function useEntries(balanceSheetId: string | undefined) {
   const [data, setData] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(false);

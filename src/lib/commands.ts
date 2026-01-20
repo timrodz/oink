@@ -17,6 +17,7 @@ export const COMMANDS = {
   // Balance Sheets
   GET_BALANCE_SHEETS: "get_balance_sheets",
   CREATE_BALANCE_SHEET: "create_balance_sheet",
+  DELETE_BALANCE_SHEET: "delete_balance_sheet",
 
   // Entries
   GET_ENTRIES: "get_entries",
