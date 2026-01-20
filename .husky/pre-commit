@@ -1,2 +1,13 @@
-bun lint
-cargo clippy --manifest-path src-tauri/Cargo.toml
+#!/bin/sh
+
+# Check for changes in src/
+if git diff --cached --name-only | grep -q "^src/"; then
+  echo "Detected changes in src/, running bun lint..."
+  bun lint || exit 1
+fi
+
+# Check for changes in src-tauri/
+if git diff --cached --name-only | grep -q "^src-tauri/"; then
+  echo "Detected changes in src-tauri/, running cargo clippy..."
+  cargo clippy --manifest-path src-tauri/Cargo.toml || exit 1
+fi
