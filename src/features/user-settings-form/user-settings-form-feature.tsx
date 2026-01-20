@@ -63,7 +63,7 @@ export function UserSettingsFormFeature({
         <Label htmlFor="name">Your Name</Label>
         <Input
           id="name"
-          placeholder="e.g. Tim"
+          placeholder="e.g. Warren Buffet"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required

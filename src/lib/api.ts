@@ -5,6 +5,7 @@ import {
   BalanceSheet,
   CurrencyRate,
   Entry,
+  OnboardingStep,
   UserSettings,
 } from "./types";
 
@@ -147,5 +148,14 @@ export const api = {
   // Net Worth
   getNetWorthHistory: async (): Promise<NetWorthDataPoint[]> => {
     return await invoke(COMMANDS.GET_NET_WORTH_HISTORY);
+  },
+
+  // Onboarding
+  getOnboardingStatus: async (): Promise<OnboardingStep[]> => {
+    return await invoke(COMMANDS.GET_ONBOARDING_STATUS);
+  },
+
+  completeOnboardingStep: async (stepKey: string): Promise<void> => {
+    await invoke(COMMANDS.COMPLETE_ONBOARDING_STEP, { stepKey });
   },
 };

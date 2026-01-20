@@ -1,15 +1,3 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { BalanceSheetChart } from "@/components/charts/balance-sheet-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,34 +12,29 @@ import { MONTHS } from "@/lib/constants";
 import {
   useAccounts,
   useCurrencyRates,
-  useDeleteBalanceSheet,
   useEntries,
   useUpsertCurrencyRate,
   useUpsertEntry,
 } from "@/lib/queries";
 import { BalanceSheet } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import { useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import { AccountSection } from "./components/account-section";
+import { DangerZone } from "./components/danger-zone";
 import { ExchangeRatesGrid } from "./components/exchange-rates-grid";
-import { TotalsSection } from "./components/totals-section";
+import { TotalsGrid } from "./components/totals-grid";
 import { calculateMonthlyTotals } from "./lib/calculations";
+
+const TOTAL_COLUMNS = 14;
 
 interface BalanceSheetFeatureProps {
   balanceSheet: BalanceSheet;
   homeCurrency: string;
 }
 
-const TOTAL_COLUMNS = 14;
-
 export function BalanceSheetFeature({
   balanceSheet,
   homeCurrency,
 }: BalanceSheetFeatureProps) {
-  const navigate = useNavigate();
-  const [isDeleting, setIsDeleting] = useState(false);
-
   const { data: accounts, loading: accountsLoading } = useAccounts(true);
   const {
     data: entries,
@@ -60,8 +43,6 @@ export function BalanceSheetFeature({
     setData: setEntries,
   } = useEntries(balanceSheet.id);
   const { mutate: upsertEntry } = useUpsertEntry();
-  const { mutate: deleteBalanceSheet } = useDeleteBalanceSheet();
-
   const {
     data: rates,
     loading: ratesLoading,
@@ -69,21 +50,6 @@ export function BalanceSheetFeature({
     setData: setRates,
   } = useCurrencyRates(balanceSheet.year);
   const { mutate: upsertRate } = useUpsertCurrencyRate();
-
-  const accountsRef = useRef<HTMLDivElement>(null);
-  const ratesRef = useRef<HTMLDivElement>(null);
-  const totalsRef = useRef<HTMLDivElement>(null);
-
-  const syncScroll = (activeRef: React.RefObject<HTMLDivElement | null>) => {
-    if (!activeRef.current) return;
-    const scrollLeft = activeRef.current.scrollLeft;
-
-    [accountsRef, ratesRef, totalsRef].forEach((ref) => {
-      if (ref !== activeRef && ref.current) {
-        ref.current.scrollLeft = scrollLeft;
-      }
-    });
-  };
 
   const handleEntryChange = async (
     accountId: string,
@@ -186,17 +152,6 @@ export function BalanceSheetFeature({
     }
   };
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      await deleteBalanceSheet(balanceSheet.id);
-      navigate("/");
-    } catch (e) {
-      console.error("Failed to delete balance sheet:", e);
-      setIsDeleting(false);
-    }
-  };
-
   const { assets, liabilities } = useMemo(() => {
     const activeAccounts = accounts.filter((a) => !a.isArchived);
     const assetsList = activeAccounts.filter((a) => a.accountType === "Asset");
@@ -210,15 +165,17 @@ export function BalanceSheetFeature({
     };
   }, [accounts]);
 
-  const monthlyTotals = useMemo(() => {
-    return calculateMonthlyTotals(
-      accounts,
-      entries,
-      rates,
-      balanceSheet.year,
-      homeCurrency,
-    );
-  }, [entries, accounts, rates, balanceSheet.year, homeCurrency]);
+  const monthlyTotals = useMemo(
+    () =>
+      calculateMonthlyTotals(
+        accounts,
+        entries,
+        rates,
+        balanceSheet.year,
+        homeCurrency,
+      ),
+    [entries, accounts, rates, balanceSheet.year, homeCurrency],
+  );
 
   const isLoading =
     accountsLoading || (entriesLoading && entries.length === 0) || ratesLoading;
@@ -239,9 +196,6 @@ export function BalanceSheetFeature({
     );
   }
 
-  const hideScrollbarClass =
-    "scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
-
   return (
     <div className="space-y-8 pb-12">
       {/* CHART */}
@@ -258,11 +212,7 @@ export function BalanceSheetFeature({
       </Card>
 
       {/* ACCOUNTS GRID */}
-      <div
-        ref={accountsRef}
-        onScroll={() => syncScroll(accountsRef)}
-        className={cn("border rounded-md overflow-x-auto", hideScrollbarClass)}
-      >
+      <div>
         <Table className="min-w-[1200px]">
           <TableHeader>
             <TableRow>
@@ -336,81 +286,10 @@ export function BalanceSheetFeature({
           homeCurrency={homeCurrency}
           rates={rates}
           onRateChange={handleRateChange}
-          containerRef={ratesRef}
-          onScroll={() => syncScroll(ratesRef)}
         />
       )}
-
-      {/* TOTALS GRID */}
-      <div
-        ref={totalsRef}
-        onScroll={() => syncScroll(totalsRef)}
-        className={cn("border rounded-md overflow-x-auto", hideScrollbarClass)}
-      >
-        <Table className="min-w-[1200px]">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px] sticky left-0 z-10 bg-background border-r font-bold">
-                Totals
-              </TableHead>
-              {MONTHS.map((month) => (
-                <TableHead key={month} className="text-right min-w-[100px]">
-                  {month}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TotalsSection
-              monthlyTotals={monthlyTotals}
-              homeCurrency={homeCurrency}
-            />
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* DANGER ZONE */}
-      <Card className="border-destructive/50">
-        <CardHeader>
-          <CardTitle className="text-destructive">Danger Zone</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Delete this balance sheet</p>
-              <p className="text-sm text-muted-foreground">
-                Once deleted, all data for {balanceSheet.year} will be
-                permanently removed. This action cannot be undone.
-              </p>
-            </div>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={isDeleting}>
-                  {isDeleting ? "Deleting..." : "Delete Balance Sheet"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete the {balanceSheet.year} balance
-                    sheet and all its entries. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </CardContent>
-      </Card>
+      <TotalsGrid monthlyTotals={monthlyTotals} homeCurrency={homeCurrency} />
+      <DangerZone balanceSheetId={balanceSheet.id} year={balanceSheet.year} />
     </div>
   );
 }

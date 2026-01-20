@@ -30,6 +30,10 @@ export const COMMANDS = {
 
   // Net Worth
   GET_NET_WORTH_HISTORY: "get_net_worth_history",
+
+  // Onboarding
+  GET_ONBOARDING_STATUS: "get_onboarding_status",
+  COMPLETE_ONBOARDING_STEP: "complete_onboarding_step",
 } as const;
 
 export type CommandName = (typeof COMMANDS)[keyof typeof COMMANDS];

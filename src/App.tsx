@@ -1,10 +1,9 @@
-import { UserSettingsFormFeature } from "@/features/user-settings-form/user-settings-form-feature";
+import { OnboardingFeature } from "@/features/onboarding/onboarding-feature";
+import { useOnboarding } from "@/hooks/use-onboarding";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { BalanceSheetPage } from "@/pages/BalanceSheetPage";
 import { HomePage } from "@/pages/HomePage";
-import { PrivacyProvider } from "@/providers/privacy-provider";
-import { ThemeProvider } from "@/providers/theme-provider";
-import { useCallback } from "react";
+import { useMemo } from "react";
 import {
   Navigate,
   Route,
@@ -20,38 +19,38 @@ const Settings = () => (
 );
 
 function App() {
-  const { data: settings, isLoading, refetch } = useUserSettings();
+  const { isLoading: isStatusLoading, data: onboardingStatus } =
+    useOnboarding();
+  const { isLoading: isSettingsLoading } = useUserSettings();
 
-  const handleUpdateSettings = useCallback(() => {
-    refetch();
-  }, []);
+  const isLoading = isStatusLoading || isSettingsLoading;
+
+  const isOnboardingCompleted = useMemo(() => {
+    if (!onboardingStatus) return false;
+    return onboardingStatus.every((step) => step.isCompleted);
+  }, [onboardingStatus]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-muted-foreground animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isOnboardingCompleted) {
+    return <OnboardingFeature />;
+  }
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <PrivacyProvider>
-        {isLoading ? (
-          <div className="flex min-h-screen items-center justify-center bg-background">
-            <div className="text-muted-foreground animate-pulse">
-              Loading...
-            </div>
-          </div>
-        ) : !settings ? (
-          <UserSettingsFormFeature onComplete={handleUpdateSettings} />
-        ) : (
-          <Router>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route
-                path="/balance-sheets/:year"
-                element={<BalanceSheetPage />}
-              />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Router>
-        )}
-      </PrivacyProvider>
-    </ThemeProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/balance-sheets/:year" element={<BalanceSheetPage />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 

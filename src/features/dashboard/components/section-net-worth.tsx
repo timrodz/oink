@@ -14,20 +14,22 @@ import { NetWorthKPIs } from "./net-worth-kpis";
 
 export function SectionNetWorth() {
   const { data: settings } = useUserSettings();
-  const { data: history, isLoading: historyLoading } = useNetWorthHistory();
+  const { data: netWorthHistory, isLoading: historyLoading } =
+    useNetWorthHistory();
 
   // State
   const [timeRange, setTimeRange] = useState("ALL");
 
   if (!settings) return null;
+  if (!historyLoading && !netWorthHistory) return null;
 
   // Logic: Net Worth Calc
   const homeCurrency = settings.homeCurrency;
 
   // Logic: Chart Data & KPIs
   const filteredHistory = useMemo(
-    () => getFilteredHistory(history, timeRange),
-    [history, timeRange],
+    () => getFilteredHistory(netWorthHistory, timeRange),
+    [netWorthHistory, timeRange],
   );
 
   const chartData = useMemo(

@@ -76,12 +76,10 @@ export function BalanceSheetPage() {
       </header>
 
       <main className="flex-1 overflow-auto p-4 w-full">
-        <div className="mx-auto w-full max-w-[1920px]">
-          <BalanceSheetFeature
-            balanceSheet={balanceSheet}
-            homeCurrency={settings.homeCurrency}
-          />
-        </div>
+        <BalanceSheetFeature
+          balanceSheet={balanceSheet}
+          homeCurrency={settings.homeCurrency}
+        />
       </main>
     </div>
   );

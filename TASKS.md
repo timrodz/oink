@@ -180,3 +180,12 @@
 - [x] Update frontend types and API for archiving
 - [x] Update Account List with visibility toggle and archive actions
 - [x] Ensure archived accounts are excluded from display but included in calculations
+
+## Phase 9: Persistent Onboarding ✅
+
+- [x] Create `onboarding_steps` table and migration
+- [x] Implement `OnboardingService` with auto-completion logic
+- [x] Create `useOnboarding` hook and API wrappers
+- [x] Build `OnboardingFeature` multi-step UI
+- [x] Ensure steps reuse existing forms (Settings, Accounts)
+- [x] Guard main application with onboarding check in `App.tsx`
