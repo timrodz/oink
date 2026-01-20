@@ -7,6 +7,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -45,6 +47,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -56,14 +59,14 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
   const fetchAccounts = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.getAllAccounts();
+      const data = await api.getAllAccounts(showArchived);
       setAccounts(data);
     } catch (error) {
       console.error("Failed to fetch accounts:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showArchived]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -71,6 +74,15 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
       fetchAccounts();
     } catch (error) {
       console.error("Failed to delete account:", error);
+    }
+  };
+
+  const handleToggleArchive = async (id: string) => {
+    try {
+      await api.toggleArchiveAccount(id);
+      fetchAccounts();
+    } catch (error) {
+      console.error("Failed to toggle archive:", error);
     }
   };
 
@@ -97,7 +109,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
 
   useEffect(() => {
     fetchAccounts();
-  }, []);
+  }, [fetchAccounts]);
 
   if (loading && accounts.length === 0) {
     return (
@@ -110,7 +122,19 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Your Accounts</h3>
+        <div className="flex items-center gap-4">
+          <h3 className="text-lg font-semibold">Your Accounts</h3>
+          <div className="flex items-center space-x-2 border px-3 py-1.5 rounded-md">
+            <Switch
+              id="show-archived"
+              checked={showArchived}
+              onCheckedChange={setShowArchived}
+            />
+            <Label htmlFor="show-archived" className="text-sm cursor-pointer">
+              Show archived
+            </Label>
+          </div>
+        </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
@@ -175,6 +199,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
                       onEditStart={() => setEditingAccount(account)}
                       onEditEnd={() => setEditingAccount(null)}
                       onDelete={handleDelete}
+                      onToggleArchive={handleToggleArchive}
                       onRefresh={fetchAccounts}
                     />
                   ))}

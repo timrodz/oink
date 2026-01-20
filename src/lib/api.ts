@@ -40,8 +40,14 @@ export const api = {
   },
 
   // Accounts
-  getAllAccounts: async (): Promise<Account[]> => {
-    return await invoke(COMMANDS.GET_ALL_ACCOUNTS);
+  getAllAccounts: async (
+    includeArchived: boolean = false,
+  ): Promise<Account[]> => {
+    return await invoke(COMMANDS.GET_ALL_ACCOUNTS, { includeArchived });
+  },
+
+  toggleArchiveAccount: async (id: string): Promise<Account> => {
+    return await invoke(COMMANDS.TOGGLE_ARCHIVE_ACCOUNT, { id });
   },
 
   createAccount: async (

@@ -8,6 +8,7 @@ export const COMMANDS = {
 
   // Accounts
   GET_ALL_ACCOUNTS: "get_all_accounts",
+  TOGGLE_ARCHIVE_ACCOUNT: "toggle_archive_account",
   CREATE_ACCOUNT: "create_account",
   UPDATE_ACCOUNT: "update_account",
   UPDATE_ACCOUNT_ORDER: "update_account_order",

@@ -35,7 +35,7 @@ export function BalanceSheetFeature({
   balanceSheet,
   homeCurrency,
 }: BalanceSheetFeatureProps) {
-  const { data: accounts, loading: accountsLoading } = useAccounts();
+  const { data: accounts, loading: accountsLoading } = useAccounts(true);
   const {
     data: entries,
     loading: entriesLoading,
@@ -169,8 +169,9 @@ export function BalanceSheetFeature({
   };
 
   const { assets, liabilities } = useMemo(() => {
-    const assetsList = accounts.filter((a) => a.accountType === "Asset");
-    const liabilitiesList = accounts.filter(
+    const activeAccounts = accounts.filter((a) => !a.isArchived);
+    const assetsList = activeAccounts.filter((a) => a.accountType === "Asset");
+    const liabilitiesList = activeAccounts.filter(
       (a) => a.accountType === "Liability",
     );
 

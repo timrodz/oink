@@ -172,3 +172,11 @@
 
 - [x] Add option to hide net all worth and account balances (dashboard and balance sheets). Create a react context provider to toggle visibility. Should not affect calculations, just values shown. Includes charts
 - [ ] Add option to import and export application data in JSON format.
+
+## Phase 8: Archive Accounts ✅
+
+- [x] Implement database support for `is_archived` status
+- [x] Add backend logic to toggle archive status and filter accounts
+- [x] Update frontend types and API for archiving
+- [x] Update Account List with visibility toggle and archive actions
+- [x] Ensure archived accounts are excluded from display but included in calculations

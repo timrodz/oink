@@ -15,6 +15,7 @@ export interface Account {
   accountType: "Asset" | "Liability";
   currency: string;
   sortOrder: number;
+  isArchived: boolean;
   createdAt: string;
 }
 
