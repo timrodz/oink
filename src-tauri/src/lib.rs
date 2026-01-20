@@ -79,6 +79,7 @@ pub fn run() {
             commands::delete_account,
             commands::get_balance_sheets,
             commands::create_balance_sheet,
+            commands::delete_balance_sheet,
             commands::get_entries,
             commands::upsert_entry,
             commands::get_currency_rates,

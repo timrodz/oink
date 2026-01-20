@@ -116,6 +116,11 @@ pub async fn create_balance_sheet(
     Ok(sheet)
 }
 
+#[tauri::command]
+pub async fn delete_balance_sheet(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    BalanceSheetService::delete(&state.db, id).await
+}
+
 // --- Entries ---
 
 #[tauri::command]
