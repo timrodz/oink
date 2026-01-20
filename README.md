@@ -36,7 +36,27 @@ cargo test
 
 ## Progress screenshots
 
-## 16/01/2026
+### 20/01/2026
+
+Dashboard 
+
+Net worth section w/ privacy mode and time series charts
+
+<img width="1676" height="760" alt="image" src="https://github.com/user-attachments/assets/5f8b5cc0-6271-4ba7-9057-b642df4c56b0" />
+
+Balance sheets overview
+
+<img width="1543" height="372" alt="image" src="https://github.com/user-attachments/assets/994952ea-34eb-4e76-bc11-0f40323698a8" />
+
+Balance sheet page: overview + account entries
+
+<img width="1962" height="1064" alt="image" src="https://github.com/user-attachments/assets/909d6476-ccff-4264-ad86-c966c1dcc97c" />
+
+Balance sheet page: foreign exchange rates + totals
+
+<img width="1959" height="360" alt="image" src="https://github.com/user-attachments/assets/4a6eb210-ad94-447b-bdbd-2476b7873a7f" />
+
+### 16/01/2026
 
 Dashboard
 
