@@ -25,6 +25,9 @@ export const COMMANDS = {
   GET_CURRENCY_RATES: "get_currency_rates",
   UPSERT_CURRENCY_RATE: "upsert_currency_rate",
   DELETE_CURRENCY_RATE: "delete_currency_rate",
+
+  // Net Worth
+  GET_NET_WORTH_HISTORY: "get_net_worth_history",
 } as const;
 
 export type CommandName = (typeof COMMANDS)[keyof typeof COMMANDS];

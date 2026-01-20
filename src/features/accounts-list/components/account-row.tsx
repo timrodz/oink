@@ -19,11 +19,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { Account } from "@/lib/api";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Edit2, GripVertical, Trash2 } from "lucide-react";
-import { AccountFormFeature } from "../../accounts/account-form-feature";
 
 interface AccountRowProps {
   account: Account;

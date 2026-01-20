@@ -8,40 +8,106 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { YearSelector } from "@/components/year-selector";
-import { AccountsListFeature } from "@/features/accounts-list/accounts-list";
+import { AccountsListFeature } from "@/features/accounts-list/accounts-list-feature";
+import { MonthlyGrowthChart } from "@/features/dashboard/components/monthly-growth-chart";
+import { NetWorthBreakdownChart } from "@/features/dashboard/components/net-worth-breakdown-chart";
+import { NetWorthKPIs } from "@/features/dashboard/components/net-worth-kpis";
+import { NetWorthTrendChart } from "@/features/dashboard/components/net-worth-trend-chart";
 import { UserSettingsFormFeature } from "@/features/user-settings-form/user-settings-form-feature";
+import { useNetWorthHistory } from "@/hooks/use-net-worth";
+import {
+  calculateGrowth,
+  getFilteredHistory,
+  getNetWorthChartData,
+} from "@/lib/charts/net-worth-utils";
 import { useBalanceSheets, useCreateBalanceSheet } from "@/lib/queries";
-import { UserSettings } from "@/lib/types";
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from "chart.js";
 import { Plus, RefreshCw, Settings as SettingsIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface DashboardProps {
-  settings: UserSettings;
-  onSettingsUpdated: () => void;
-}
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+);
 
-export function DashboardFeature({
-  settings,
-  onSettingsUpdated,
-}: DashboardProps) {
+import { useUserSettings } from "@/hooks/use-user-settings";
+
+export function DashboardFeature() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [createYearOpen, setCreateYearOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Data Fetching
+  const { data: settings, refetch: refetchSettings } = useUserSettings();
 
   const {
     data: balanceSheets,
     loading: sheetsLoading,
     refetch: refetchSheets,
   } = useBalanceSheets();
+
   const {
     mutate: createSheet,
     loading: createLoading,
     error: createError,
   } = useCreateBalanceSheet();
 
+  const { data: history, isLoading: historyLoading } = useNetWorthHistory();
+
+  // State
   const [selectedYear, setSelectedYear] = useState<number | undefined>();
+  const [timeRange, setTimeRange] = useState("ALL");
+
+  if (!settings) return null; // Should be handled by parent or loading state
+
+  // Logic: Net Worth Calc
+  const homeCurrency = settings.homeCurrency;
+
+  // Logic: Chart Data & KPIs
+  const filteredHistory = useMemo(
+    () => getFilteredHistory(history, timeRange),
+    [history, timeRange],
+  );
+
+  const chartData = useMemo(
+    () => getNetWorthChartData(filteredHistory),
+    [filteredHistory],
+  );
+
+  // Time-aware KPI Logic
+  const latestPoint =
+    filteredHistory.length > 0
+      ? filteredHistory[filteredHistory.length - 1]
+      : undefined;
+  const startPoint =
+    filteredHistory.length > 0 ? filteredHistory[0] : undefined;
+
+  const currentNetWorth = latestPoint?.netWorth || 0;
+  const startNetWorth = startPoint?.netWorth || 0;
+
+  const growth = calculateGrowth(currentNetWorth, startNetWorth);
+
+  const totalAssets = latestPoint?.totalAssets || 0;
+  const totalLiabilities = latestPoint?.totalLiabilities || 0;
 
   const handleCreateSheet = async () => {
     if (!selectedYear) return;
@@ -85,7 +151,7 @@ export function DashboardFeature({
                 </DialogHeader>
                 <UserSettingsFormFeature
                   onComplete={() => {
-                    onSettingsUpdated();
+                    refetchSettings();
                     setSettingsOpen(false);
                   }}
                   initialValues={{
@@ -100,9 +166,87 @@ export function DashboardFeature({
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Balance Sheets Section */}
-        <section className="mb-12">
+      <main className="container mx-auto px-4 py-8 space-y-12">
+        {/* SECTION 1: Net Worth Overview */}
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Net Worth Overview</h2>
+            <Tabs
+              value={timeRange}
+              onValueChange={setTimeRange}
+              className="w-auto"
+            >
+              <TabsList>
+                <TabsTrigger value="ALL">All</TabsTrigger>
+                <TabsTrigger value="5Y">5Y</TabsTrigger>
+                <TabsTrigger value="1Y">1Y</TabsTrigger>
+                <TabsTrigger value="YTD">YTD</TabsTrigger>
+                <TabsTrigger value="6M">6M</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* KPI Cards */}
+          <NetWorthKPIs
+            currentNetWorth={currentNetWorth}
+            momGrowth={growth.percentage} // Reusing prop name but passing period growth
+            totalAssets={totalAssets}
+            totalLiabilities={totalLiabilities}
+            homeCurrency={homeCurrency}
+            periodLabel={timeRange === "ALL" ? "all time" : `in ${timeRange}`}
+          />
+
+          {/* Charts Area with Tabs */}
+          <Tabs defaultValue="trend" className="w-full">
+            <div className="flex items-center justify-between mb-4">
+              <TabsList>
+                <TabsTrigger value="trend">Trend</TabsTrigger>
+                <TabsTrigger value="growth">Monthly Growth</TabsTrigger>
+                <TabsTrigger value="breakdown">Breakdown</TabsTrigger>
+              </TabsList>
+
+              {/* Render Time Range Selector here, only for charts that need it?
+                  Actually NetWorthTrendChart HAD the selector inside it.
+                  We should lift it up or pass it down.
+                  The filteredHistory depends on timeRange.
+                  So the selector must controls `timeRange` state in DashboardFeature.
+                  NetWorthTrendChart receives `timeRange` and `setTimeRange`.
+                  But other charts also need `filteredHistory`.
+              */}
+            </div>
+
+            <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
+              {/*  Time Range Selector - We can keep it inside NetWorthTrendChart for now,
+                      OR move it out. If we move it out, it applies to ALL charts.
+                      "Accurate to time range filters" implies it applies to all.
+                      Let's move it OUT of NetWorthTrendChart and put it above the tabs?
+                      Or inside the Tab content?
+                      The NetWorthTrendChart component CURRENTLY renders the Tabs for time selection.
+                      Let's extract that to a simpler component or render it here.
+                  */}
+
+              <TabsContent value="trend" className="mt-0">
+                <NetWorthTrendChart
+                  isLoading={historyLoading}
+                  chartData={chartData}
+                  homeCurrency={homeCurrency}
+                />
+              </TabsContent>
+              <TabsContent value="growth" className="mt-0">
+                <MonthlyGrowthChart
+                  filteredHistory={filteredHistory}
+                  homeCurrency={homeCurrency}
+                />
+              </TabsContent>
+              <TabsContent value="breakdown" className="mt-0">
+                <NetWorthBreakdownChart latestPoint={latestPoint} />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </section>
+
+        {/* SECTION 2: Balance Sheets */}
+        <section>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Balance Sheets</h3>
           </div>
@@ -179,19 +323,8 @@ export function DashboardFeature({
           </div>
         </section>
 
-        {/* Net Worth Teaser (Future) */}
-        {/* <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-          <div className="p-6 border rounded-lg shadow-sm bg-card text-card-foreground">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase">
-              Net Worth
-            </h3>
-            <p className="text-2xl font-bold mt-2">
-              $0.00 {settings.homeCurrency}
-            </p>
-          </div>
-        </div> */}
-
-        <section className="mt-12">
+        {/* SECTION 3: Accounts */}
+        <section>
           <AccountsListFeature homeCurrency={settings.homeCurrency} />
         </section>
       </main>

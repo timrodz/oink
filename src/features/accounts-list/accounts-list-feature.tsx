@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { Account, api } from "@/lib/api";
 import {
   DndContext,
@@ -33,7 +34,6 @@ import {
 } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { AccountFormFeature } from "../accounts/account-form-feature";
 import { AccountRow } from "./components/account-row";
 
 interface AccountsListProps {

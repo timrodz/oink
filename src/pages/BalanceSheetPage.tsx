@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
-import { useBalanceSheets, useUserSettings } from "@/lib/queries";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useBalanceSheets } from "@/lib/queries";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -12,7 +13,7 @@ export function BalanceSheetPage() {
     loading: sheetsLoading,
     error: sheetsError,
   } = useBalanceSheets();
-  const { data: settings, loading: settingsLoading } = useUserSettings();
+  const { data: settings, isLoading: settingsLoading } = useUserSettings();
 
   const selectedYear = year ? parseInt(year, 10) : null;
   const balanceSheet = sheets?.find((s) => s.year === selectedYear);

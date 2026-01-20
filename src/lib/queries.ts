@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "./api";
-import {
-  Account,
-  BalanceSheet,
-  CurrencyRate,
-  Entry,
-  UserSettings,
-} from "./types";
+import { Account, BalanceSheet, CurrencyRate, Entry } from "./types";
+
+// TODO: all `use<Name>` features should be placed into their own hooks
 
 export function useBalanceSheets() {
   const [data, setData] = useState<BalanceSheet[]>([]);
@@ -31,31 +27,6 @@ export function useBalanceSheets() {
   }, [fetchBalanceSheets]);
 
   return { data, loading, error, refetch: fetchBalanceSheets };
-}
-
-export function useUserSettings() {
-  const [data, setData] = useState<UserSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchSettings = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const settings = await api.getUserSettings();
-      setData(settings);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
-
-  return { data, loading, error, refetch: fetchSettings };
 }
 
 export function useAccounts() {
@@ -138,7 +109,7 @@ export function useUpsertEntry() {
     balanceSheetId: string,
     accountId: string,
     month: number,
-    amount: number
+    amount: number,
   ) => {
     setLoading(true);
     setError(null);
@@ -147,7 +118,7 @@ export function useUpsertEntry() {
         balanceSheetId,
         accountId,
         month,
-        amount
+        amount,
       );
       return result;
     } catch (e) {
@@ -200,7 +171,7 @@ export function useUpsertCurrencyRate() {
     toCurrency: string,
     rate: number,
     month: number,
-    year: number
+    year: number,
   ) => {
     setLoading(true);
     setError(null);
@@ -211,7 +182,7 @@ export function useUpsertCurrencyRate() {
         toCurrency,
         rate,
         month,
-        year
+        year,
       );
       return result;
     } catch (e) {

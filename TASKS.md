@@ -155,16 +155,20 @@
 
 ## Phase 6: Net Worth Dashboard
 
-- [ ] Calculate net worth per month (assets - liabilities)
-- [ ] Build Dashboard component with current net worth
-- [ ] Integrate Chart.js for trend graph
-- [ ] Add time range filters (1M, 3M, 6M, YTD, 1Y, 5Y, All)
-- [ ] Show month-over-month growth indicator
+- [x] Calculate net worth per month (assets - liabilities)
+- [x] Build Dashboard component with current net worth
+- [x] Integrate Chart.js for trend graph, pie chart (net worth breakdown), bar chart for monthly growth
+- [x] Add time range filters (1M, 3M, 6M, YTD, 1Y, 5Y, All)
+- [x] Show month-over-month growth indicator
 
-## Phase 7: Polish & UX
+### Acceptance criteria
 
-- [ ] Add growth row to balance sheet grid
-- [ ] Implement loading states
-- [ ] Add error handling and validation feedback
-- [ ] Visual polish (colors, spacing, typography)
-- [ ] Test full user flow end-to-end
+- [x] Charts are rendered in individual components
+- [x] Net worth dashboard is rendered in the main layout
+- [x] Dashboard feature shows all KPIs in separate tabs with the same time filters being selected even if they change
+- [x] KPIs show data accurate to the time range filters
+
+## Phase 7: Polish & Privacy
+
+- [ ] Add option to hide net all worth and account balances (dashboard and balance sheets). Create a react context provider to toggle visibility. Should not affect calculations, just values shown. Includes charts
+- [ ] Add option to import and export application data in JSON format.

@@ -8,6 +8,15 @@ import {
   UserSettings,
 } from "./types";
 
+export interface NetWorthDataPoint {
+  year: number;
+  month: number;
+  totalAssets: number;
+  totalLiabilities: number;
+  netWorth: number;
+  currency: string;
+}
+
 // Re-export types for consumers
 export type { Account, BalanceSheet, CurrencyRate, Entry, UserSettings };
 
@@ -123,5 +132,10 @@ export const api = {
 
   deleteCurrencyRate: async (id: string): Promise<void> => {
     await invoke(COMMANDS.DELETE_CURRENCY_RATE, { id });
+  },
+
+  // Net Worth
+  getNetWorthHistory: async (): Promise<NetWorthDataPoint[]> => {
+    return await invoke(COMMANDS.GET_NET_WORTH_HISTORY);
   },
 };
