@@ -29,6 +29,8 @@ interface BalanceSheetFeatureProps {
   homeCurrency: string;
 }
 
+const TOTAL_COLUMNS = 14;
+
 export function BalanceSheetFeature({
   balanceSheet,
   homeCurrency,
@@ -248,7 +250,7 @@ export function BalanceSheetFeature({
           <TableBody>
             <TableRow className="bg-muted/50 font-semibold hover:bg-muted/50">
               <TableCell
-                colSpan={14}
+                colSpan={TOTAL_COLUMNS}
                 className="sticky left-0 bg-muted/50 border-r"
               >
                 ASSETS
@@ -262,7 +264,7 @@ export function BalanceSheetFeature({
             {assets.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={14}
+                  colSpan={TOTAL_COLUMNS}
                   className="text-center text-muted-foreground py-4"
                 >
                   No asset accounts found.
@@ -272,7 +274,7 @@ export function BalanceSheetFeature({
 
             <TableRow className="bg-muted/50 font-semibold hover:bg-muted/50">
               <TableCell
-                colSpan={14}
+                colSpan={TOTAL_COLUMNS}
                 className="sticky left-0 bg-muted/50 border-r"
               >
                 LIABILITIES
@@ -286,7 +288,7 @@ export function BalanceSheetFeature({
             {liabilities.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={14}
+                  colSpan={TOTAL_COLUMNS}
                   className="text-center text-muted-foreground py-4"
                 >
                   No liability accounts found.
