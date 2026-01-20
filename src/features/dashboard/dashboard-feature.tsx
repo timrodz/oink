@@ -8,6 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { UserSettingsFormFeature } from "@/features/user-settings-form/user-settings-form-feature";
+import { usePrivacy } from "@/providers/privacy-provider";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -19,7 +20,7 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
-import { Settings as SettingsIcon } from "lucide-react";
+import { Eye, EyeOff, Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
 
 ChartJS.register(
@@ -41,6 +42,7 @@ import { SectionNetWorth } from "./components/section-net-worth";
 export function DashboardFeature() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   // Data Fetching
+  const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
   const { data: settings, refetch: refetchSettings } = useUserSettings();
 
   if (!settings) return null;
@@ -57,6 +59,21 @@ export function DashboardFeature() {
             <span className="text-sm text-muted-foreground mr-2">
               {settings?.name ? `Hello, ${settings.name}` : "Hello"}
             </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={togglePrivacyMode}
+              title={isPrivacyMode ? "Show numbers" : "Hide numbers"}
+            >
+              {isPrivacyMode ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+              <span className="sr-only">
+                {isPrivacyMode ? "Show numbers" : "Hide numbers"}
+              </span>
+            </Button>
             <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon">

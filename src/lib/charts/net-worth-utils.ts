@@ -65,7 +65,10 @@ export function getNetWorthChartData(
   };
 }
 
-export function getNetWorthChartOptions(homeCurrency: string) {
+export function getNetWorthChartOptions(
+  homeCurrency: string,
+  isPrivacyMode: boolean = false,
+) {
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -79,7 +82,9 @@ export function getNetWorthChartOptions(homeCurrency: string) {
             let label = context.dataset.label || "";
             if (label) label += ": ";
             if (context.parsed.y !== null) {
-              label += formatCurrencyCompact(context.parsed.y, homeCurrency);
+              label += isPrivacyMode
+                ? "***"
+                : formatCurrencyCompact(context.parsed.y, homeCurrency);
             }
             return label;
           },
@@ -92,7 +97,7 @@ export function getNetWorthChartOptions(homeCurrency: string) {
         grid: { color: "rgba(0, 0, 0, 0.05)" },
         ticks: {
           callback: (value: string | number) =>
-            formatCurrencyCompact(+value, homeCurrency),
+            isPrivacyMode ? "***" : formatCurrencyCompact(+value, homeCurrency),
         },
       },
     },

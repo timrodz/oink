@@ -4,6 +4,7 @@ import {
   getNetWorthChartOptions,
 } from "@/lib/charts/net-worth-utils";
 import { cn } from "@/lib/utils";
+import { usePrivacy } from "@/providers/privacy-provider";
 import {
   BarElement,
   CategoryScale,
@@ -36,14 +37,15 @@ export function MonthlyGrowthChart({
   homeCurrency,
   className,
 }: MonthlyGrowthChartProps) {
+  const { isPrivacyMode } = usePrivacy();
   const chartData = useMemo(
     () => getMonthlyGrowthChartData(filteredHistory),
     [filteredHistory],
   );
 
   const chartOptions = useMemo(
-    () => getNetWorthChartOptions(homeCurrency),
-    [homeCurrency],
+    () => getNetWorthChartOptions(homeCurrency, isPrivacyMode),
+    [homeCurrency, isPrivacyMode],
   );
 
   if (!chartData) {

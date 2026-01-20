@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PrivateValue } from "@/components/ui/private-value";
 import { formatCurrency } from "@/lib/currency-formatting";
 import { ArrowDownRight, ArrowUpRight, TrendingUp } from "lucide-react";
 
@@ -32,7 +33,9 @@ export function NetWorthKPIs({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {formatCurrency(currentNetWorth, homeCurrency)}
+            <PrivateValue
+              value={formatCurrency(currentNetWorth, homeCurrency)}
+            />
           </div>
           <p className="text-xs text-muted-foreground flex items-center mt-1">
             <span
@@ -51,7 +54,7 @@ export function NetWorthKPIs({
               ) : (
                 <span className="mr-1">-</span>
               )}
-              {Math.abs(momGrowth).toFixed(1)}%
+              <PrivateValue value={`${Math.abs(momGrowth).toFixed(1)}%`} />
             </span>
             <span className="ml-1">{periodLabel}</span>
           </p>
@@ -64,7 +67,7 @@ export function NetWorthKPIs({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {formatCurrency(totalAssets, homeCurrency)}
+            <PrivateValue value={formatCurrency(totalAssets, homeCurrency)} />
           </div>
           <p className="text-xs text-muted-foreground flex items-center mt-1">
             {assetGrowth !== undefined && (
@@ -84,11 +87,14 @@ export function NetWorthKPIs({
                 ) : (
                   <span className="mr-1">-</span>
                 )}
-                {Math.abs(assetGrowth).toFixed(1)}%
+                <PrivateValue value={`${Math.abs(assetGrowth).toFixed(1)}%`} />
               </span>
             )}
             <span className="ml-1">
-              {periodLabel} (vs {formatCurrency(totalLiabilities, homeCurrency)}{" "}
+              {periodLabel} (vs{" "}
+              <PrivateValue
+                value={formatCurrency(totalLiabilities, homeCurrency)}
+              />{" "}
               liabilities)
             </span>
           </p>
@@ -103,7 +109,9 @@ export function NetWorthKPIs({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {formatCurrency(totalLiabilities, homeCurrency)}
+            <PrivateValue
+              value={formatCurrency(totalLiabilities, homeCurrency)}
+            />
           </div>
           <p className="text-xs text-muted-foreground flex items-center mt-1">
             {liabilityGrowth !== undefined && (
@@ -123,7 +131,9 @@ export function NetWorthKPIs({
                 ) : (
                   <span className="mr-1">-</span>
                 )}
-                {Math.abs(liabilityGrowth).toFixed(1)}%
+                <PrivateValue
+                  value={`${Math.abs(liabilityGrowth).toFixed(1)}%`}
+                />
               </span>
             )}
             <span className="ml-1">{periodLabel}</span>

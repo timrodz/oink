@@ -5,6 +5,7 @@ import {
 } from "@/lib/currency-formatting";
 import { MonthlyTotal } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { usePrivacy } from "@/providers/privacy-provider";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -42,6 +43,7 @@ export function BalanceSheetChart({
   homeCurrency,
   className,
 }: BalanceSheetChartProps) {
+  const { isPrivacyMode } = usePrivacy();
   const data = useMemo(() => {
     const labels = [...MONTHS];
     const netWorthData = monthlyTotals.map((t) => t.netWorth);
@@ -80,7 +82,9 @@ export function BalanceSheetChart({
               label += ": ";
             }
             if (context.parsed.y !== null) {
-              label += formatCurrency(context.parsed.y, homeCurrency);
+              label += isPrivacyMode
+                ? "***"
+                : formatCurrency(context.parsed.y, homeCurrency);
             }
             return label;
           },
@@ -95,7 +99,9 @@ export function BalanceSheetChart({
         },
         ticks: {
           callback: function (value) {
-            return formatCurrencyCompact(+value, homeCurrency);
+            return isPrivacyMode
+              ? "***"
+              : formatCurrencyCompact(+value, homeCurrency);
           },
         },
       },

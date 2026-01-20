@@ -170,5 +170,5 @@
 
 ## Phase 7: Polish & Privacy
 
-- [ ] Add option to hide net all worth and account balances (dashboard and balance sheets). Create a react context provider to toggle visibility. Should not affect calculations, just values shown. Includes charts
+- [x] Add option to hide net all worth and account balances (dashboard and balance sheets). Create a react context provider to toggle visibility. Should not affect calculations, just values shown. Includes charts
 - [ ] Add option to import and export application data in JSON format.

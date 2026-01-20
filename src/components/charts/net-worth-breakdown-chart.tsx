@@ -1,7 +1,14 @@
 import { NetWorthDataPoint } from "@/lib/api";
 import { getBreakdownChartData } from "@/lib/charts/net-worth-utils";
 import { cn } from "@/lib/utils";
-import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
+import { usePrivacy } from "@/providers/privacy-provider";
+import {
+  ArcElement,
+  Chart as ChartJS,
+  Legend,
+  Tooltip,
+  TooltipItem,
+} from "chart.js";
 import { useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
 
@@ -16,6 +23,7 @@ export function NetWorthBreakdownChart({
   latestPoint,
   className,
 }: NetWorthBreakdownChartProps) {
+  const { isPrivacyMode } = usePrivacy();
   const chartData = useMemo(
     () => getBreakdownChartData(latestPoint),
     [latestPoint],
@@ -35,6 +43,16 @@ export function NetWorthBreakdownChart({
     plugins: {
       legend: {
         position: "bottom" as const,
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: TooltipItem<"doughnut">) => {
+            let label = context.label || "";
+            if (label) label += ": ";
+            label += isPrivacyMode ? "***" : context.formattedValue;
+            return label;
+          },
+        },
       },
     },
   };

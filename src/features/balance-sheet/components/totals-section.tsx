@@ -1,3 +1,4 @@
+import { PrivateValue } from "@/components/ui/private-value";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { formatDecimal2Digits } from "@/lib/currency-formatting";
 import { MonthlyTotal } from "@/lib/types";
@@ -31,7 +32,7 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4 text-sm">
-            {formatDecimal2Digits(t.totalAssets)}
+            <PrivateValue value={formatDecimal2Digits(t.totalAssets)} />
             {t.hasMissingRates && <Warning />}
           </TableCell>
         ))}
@@ -43,7 +44,7 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4 text-sm">
-            {formatDecimal2Digits(t.totalLiabilities)}
+            <PrivateValue value={formatDecimal2Digits(t.totalLiabilities)} />
             {t.hasMissingRates && <Warning />}
           </TableCell>
         ))}
@@ -55,7 +56,7 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4">
-            {formatDecimal2Digits(t.netWorth)}
+            <PrivateValue value={formatDecimal2Digits(t.netWorth)} />
             {t.hasMissingRates && <Warning />}
           </TableCell>
         ))}
@@ -67,7 +68,7 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t, i) => (
           <TableCell key={t.month} className="text-right px-4">
-            {getGrowth(i, monthlyTotals)}
+            <PrivateValue value={getGrowth(i, monthlyTotals)} />
           </TableCell>
         ))}
       </TableRow>

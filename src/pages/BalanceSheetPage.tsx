@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { useBalanceSheets } from "@/lib/queries";
-import { ArrowLeft } from "lucide-react";
+import { usePrivacy } from "@/providers/privacy-provider";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export function BalanceSheetPage() {
   const { year } = useParams<{ year: string }>();
+  const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
   const navigate = useNavigate();
   const {
     data: sheets,
@@ -52,9 +54,24 @@ export function BalanceSheetPage() {
           <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold">
+          <h1 className="text-xl font-bold flex-1">
             {balanceSheet.year} Balance Sheet
           </h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={togglePrivacyMode}
+            title={isPrivacyMode ? "Show numbers" : "Hide numbers"}
+          >
+            {isPrivacyMode ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+            <span className="sr-only">
+              {isPrivacyMode ? "Show numbers" : "Hide numbers"}
+            </span>
+          </Button>
         </div>
       </header>
 

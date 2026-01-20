@@ -4,6 +4,7 @@ import {
   formatDecimal2Digits,
 } from "@/lib/currency-formatting";
 import { cn } from "@/lib/utils";
+import { usePrivacy } from "@/providers/privacy-provider";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 
 interface EditableCellProps {
@@ -24,6 +25,7 @@ export function EditableCell({
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [isValid, setIsValid] = useState(true);
+  const { isPrivacyMode } = usePrivacy();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -202,7 +204,7 @@ export function EditableCell({
     <div className="relative w-full h-full p-1">
       <Input
         ref={inputRef}
-        value={inputValue}
+        value={!isFocused && isPrivacyMode && value ? "***" : inputValue}
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}

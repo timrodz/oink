@@ -1,5 +1,6 @@
 import { getNetWorthChartOptions } from "@/lib/charts/net-worth-utils";
 import { cn } from "@/lib/utils";
+import { usePrivacy } from "@/providers/privacy-provider";
 import { ChartData } from "chart.js";
 import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
@@ -17,9 +18,10 @@ export function NetWorthTrendChart({
   homeCurrency,
   className,
 }: NetWorthTrendChartProps) {
+  const { isPrivacyMode } = usePrivacy();
   const chartOptions = useMemo(
-    () => getNetWorthChartOptions(homeCurrency),
-    [homeCurrency],
+    () => getNetWorthChartOptions(homeCurrency, isPrivacyMode),
+    [homeCurrency, isPrivacyMode],
   );
 
   return (
