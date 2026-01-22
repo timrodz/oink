@@ -91,7 +91,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   if [[ "$TOOL" == "amp" ]]; then
     OUTPUT=$(cat "$SCRIPT_DIR/prompt-amp.md" | amp --dangerously-allow-all 2>&1) || true
   elif [[ "$TOOL" == "codex" ]]; then
-    OUTPUT=$(codex exec --yolo - "$SCRIPT_DIR/prompt.md" 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | codex exec --yolo 2>&1 | tee /dev/stderr) || true
   elif [[ "$TOOL" == "cursor" ]]; then
     OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | cursor agent --force --print 2>&1 | tee /dev/stderr) || true
   else

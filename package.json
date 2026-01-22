@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit && eslint src",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --cache --fix src",
     "tauri": "tauri",
     "prepare": "husky"
   },
