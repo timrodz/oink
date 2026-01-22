@@ -123,3 +123,23 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: NavLink `end` is required for "/" to avoid always-active styling.
 ---
+## 2026-01-23 09:20 NZDT - US-009
+- What was implemented
+  - Built the retirement plan input form with validation, return scenario selector, and auto-fill from latest net worth.
+  - Added latest net worth frontend command/hook and shared validation helpers with type-checked tests.
+  - Documented the retirement form location in the README.
+- Files changed
+  - src/features/retirement/retirement-form-feature.tsx
+  - src/features/retirement/lib/validation.ts
+  - src/features/retirement/lib/validation.test.ts
+  - src/hooks/use-net-worth.ts
+  - src/lib/api.ts
+  - src/lib/commands.ts
+  - src/pages/Retirement.tsx
+  - README.md
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Latest net worth is fetched via a dedicated TanStack query hook for retirement planning auto-fill.
+---

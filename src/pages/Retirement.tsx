@@ -1,5 +1,6 @@
 import { Header } from "@/components/header";
 import { MainNav } from "@/components/main-nav";
+import { RetirementFormFeature } from "@/features/retirement/retirement-form-feature";
 
 export function RetirementPage() {
   return (
@@ -7,14 +8,8 @@ export function RetirementPage() {
       <Header title="Retirement Planner" />
       <MainNav />
       <main className="flex-1 overflow-auto p-6 w-full">
-        <div className="container mx-auto">
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h2 className="text-lg font-semibold">Plan your future</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              The retirement planner experience is coming next. You will be able
-              to model savings, compare scenarios, and track projected income.
-            </p>
-          </div>
+        <div className="container mx-auto max-w-4xl space-y-6">
+          <RetirementFormFeature />
         </div>
       </main>
     </div>

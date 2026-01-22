@@ -149,6 +149,9 @@ export const api = {
   getNetWorthHistory: async (): Promise<NetWorthDataPoint[]> => {
     return await invoke(COMMANDS.GET_NET_WORTH_HISTORY);
   },
+  getLatestNetWorth: async (): Promise<NetWorthDataPoint | null> => {
+    return await invoke(COMMANDS.GET_LATEST_NET_WORTH);
+  },
 
   // Onboarding
   getOnboardingStatus: async (): Promise<OnboardingStep[]> => {

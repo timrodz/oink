@@ -41,6 +41,7 @@ cargo test
 ## Frontend notes
 
 - Retirement planner TypeScript types live in `src/lib/types.ts` for UI and Tauri payloads.
+- Retirement planner form UI lives in `src/features/retirement/retirement-form-feature.tsx` with shared validation in `src/features/retirement/lib/validation.ts`.
 
 ## Progress screenshots
 

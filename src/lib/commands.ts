@@ -30,6 +30,7 @@ export const COMMANDS = {
 
   // Net Worth
   GET_NET_WORTH_HISTORY: "get_net_worth_history",
+  GET_LATEST_NET_WORTH: "get_latest_net_worth",
 
   // Onboarding
   GET_ONBOARDING_STATUS: "get_onboarding_status",
