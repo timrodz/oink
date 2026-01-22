@@ -34,6 +34,10 @@ cargo test
 - [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode)
 - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 
+## Backend notes
+
+- Retirement planner calculations live in `src-tauri/src/services/retirement.rs` and are exposed via the `calculate_retirement_projection` Tauri command.
+
 ## Progress screenshots
 
 ### 20/01/2026

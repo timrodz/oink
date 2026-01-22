@@ -6,6 +6,7 @@ use crate::services::balance_sheet::BalanceSheetService;
 use crate::services::entry::EntryService;
 use crate::services::net_worth::{NetWorthDataPoint, NetWorthService};
 use crate::services::onboarding::OnboardingService;
+use crate::services::retirement::{RetirementProjection, RetirementService};
 use crate::services::retirement_plan::RetirementPlanService;
 use crate::services::user_settings::UserSettingsService;
 use crate::AppState;
@@ -271,4 +272,19 @@ pub async fn update_retirement_plan(
 #[tauri::command]
 pub async fn delete_retirement_plan(state: State<'_, AppState>, id: String) -> Result<(), String> {
     RetirementPlanService::delete(&state.db, id).await
+}
+
+#[tauri::command]
+pub async fn calculate_retirement_projection(
+    starting_net_worth: f64,
+    monthly_contribution: f64,
+    expected_monthly_expenses: f64,
+    return_scenario: String,
+) -> Result<RetirementProjection, String> {
+    RetirementService::calculate_projection(
+        starting_net_worth,
+        monthly_contribution,
+        expected_monthly_expenses,
+        &return_scenario,
+    )
 }

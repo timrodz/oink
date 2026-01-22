@@ -75,3 +75,19 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: Latest net worth retrieval relies on get_history sorting and pops the last entry.
 ---
+## 2026-01-23 09:02 NZDT - US-006
+- What was implemented
+  - Added retirement projection calculation helper and Tauri command returning projection results.
+  - Added projection unit tests for already-achievable and future-retirement scenarios.
+  - Documented the new projection command in the README.
+- Files changed
+  - src-tauri/src/services/retirement.rs
+  - src-tauri/src/commands.rs
+  - src-tauri/src/lib.rs
+  - README.md
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Retirement projections use the 4% withdrawal rate when solving for target net worth.
+---
