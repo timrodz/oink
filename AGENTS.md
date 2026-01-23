@@ -1,35 +1,53 @@
 # AGENTS.md
 
-This is a desktop application built with Tauri.
+This is a desktop application for personal finances, built with Tauri (Rust backend + React frontend) that works offline and leverages internet access when needed to.
 
 ## Project Technologies
 
-- Backend: Rust (`src-tauri/`)
-- Frontend: React (`src/`)
-- UI: Shadcn + Tailwind
-- Framework: Tauri
+- Tauri: Application framework
+- Rust: Backend
+- React: Frontend
+- TypeScript: Frontend programming language
+- Shadcn: pre-defined UI components
+- SQLite: Database
 
 All application logic must be built with Rust, and the frontend must be used for rendering / manipulating data from the backend.
 
-## Development practics
+There is no cloud storage enabled for this application; it's expected that user data lives in a SQLite `.db` file; we only interact with that file.
+
+## Development practices
 
 ### Backend
 
-- typecheck: Prefer `cargo clippy` over `cargo check`
+- Write queries with `sqlx`
+- CRUD commands live in `src-tauri/src/commands.rs`
+- Services live in `src-tauri/src/services`
+- Database migrations live in `src-tauri/migrations`
+- Build: `cargo build`
+- Lint: `cargo fmt`
+- Typecheck: `cargo clippy`
+- Formatting: `rustfmt` default style; use snake_case for Tauri command names.
 
 ### Frontend
 
-- lint: `bun lint`
-- typecheck: `bun typecheck`
+- Charts: use `Chart.js` with `react-chartjs-2`
+- To add shadcn components use `bun shadcn:add`
+- Lint: `bun lint`
+- Typecheck: `bun typecheck`
+- Formatting: prefer camelCase for variables and PascalCase for components.
 
-### Database notes
+## Commit & Pull Request Guidelines
 
-- Retirement planner data is stored in the `retirement_plans` table (see `src-tauri/migrations`).
-- Retirement planner CRUD commands live in `src-tauri/src/commands.rs` for Tauri invoke handlers.
-- Net worth commands include `get_net_worth_history` and `get_latest_net_worth` in `src-tauri/src/commands.rs`.
+Git history may not be available in all checkouts. Use clear, imperative commit messages (recommended: Conventional Commits, e.g., `feat: add site editor`).
 
-## Rules
+PRs should include:
 
-- Add or update tests even if not asked to.
-- Run type checks and linters before committing work
-- Update documentation with findings and changes to systems
+- What changed + why, and any UX screenshots for UI changes
+- Notes on security-sensitive changes (CSP, capabilities, webview behavior)
+
+## Security & Configuration Notes
+
+This app embeds external sites in webviews and injects scripts. Be cautious when adjusting:
+
+- `src-tauri/tauri.conf.json` (CSP)
+- `src-tauri/capabilities/default.json` (permissions)

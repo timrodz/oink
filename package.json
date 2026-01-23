@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint --cache --fix src",
     "tauri": "tauri",
+    "shadcn:add": "shadcn@latest add",
     "prepare": "husky"
   },
   "dependencies": {
