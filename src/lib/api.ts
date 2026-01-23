@@ -7,6 +7,7 @@ import {
   Entry,
   OnboardingStep,
   RetirementPlan,
+  RetirementPlanProjection,
   RetirementProjection,
   ReturnScenario,
   UserSettings,
@@ -195,6 +196,12 @@ export const api = {
       expectedMonthlyExpenses,
       returnScenario,
     });
+  },
+
+  getRetirementPlanProjections: async (
+    planId: string,
+  ): Promise<RetirementPlanProjection[]> => {
+    return await invoke(COMMANDS.GET_RETIREMENT_PLAN_PROJECTIONS, { planId });
   },
 
   // Onboarding

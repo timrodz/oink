@@ -23,14 +23,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RetirementProjectionChart } from "@/components/charts/retirement-projection-chart";
 import { useLatestNetWorth } from "@/hooks/use-net-worth";
 import {
+  useRetirementPlanProjections,
   useRetirementProjection,
   useRetirementScenarioProjections,
 } from "@/hooks/use-retirement";
 import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/currency-formatting";
+import { getRetirementProjectionChartData } from "@/lib/charts";
 import { ReturnScenario } from "@/lib/types";
 import {
   getEarliestScenarioIds,
@@ -49,7 +52,7 @@ import {
   isScenarioLimitReached,
 } from "@/features/retirement/lib/scenarios";
 import { RefreshCwIcon, Trash2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function RetirementFormFeature() {
   const { data: settings } = useUserSettings();
@@ -103,6 +106,38 @@ export function RetirementFormFeature() {
   } = useRetirementPlans();
   const scenarioProjectionQueries =
     useRetirementScenarioProjections(savedPlans);
+
+  const [chartPlanId, setChartPlanId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (savedPlans && savedPlans.length > 0 && !chartPlanId) {
+      setChartPlanId(savedPlans[0].id);
+    }
+    if (chartPlanId && savedPlans && !savedPlans.some((p) => p.id === chartPlanId)) {
+      setChartPlanId(savedPlans[0]?.id ?? null);
+    }
+  }, [savedPlans, chartPlanId]);
+
+  const chartPlan = savedPlans?.find((p) => p.id === chartPlanId) ?? null;
+  const chartPlanProjectionQuery = scenarioProjectionQueries.find(
+    (_, index) => savedPlans?.[index]?.id === chartPlanId,
+  );
+
+  const {
+    data: chartProjectionDataPoints,
+    isLoading: chartProjectionLoading,
+  } = useRetirementPlanProjections(chartPlanId, {
+    enabled: Boolean(chartPlanId),
+  });
+
+  const chartData = useMemo(
+    () =>
+      getRetirementProjectionChartData(chartProjectionDataPoints, {
+        projectedRetirementDate:
+          chartPlanProjectionQuery?.data?.projectedRetirementDate ?? null,
+      }),
+    [chartProjectionDataPoints, chartPlanProjectionQuery?.data?.projectedRetirementDate],
+  );
 
   const scenarioRows =
     savedPlans?.map((plan, index) => {
@@ -541,6 +576,42 @@ export function RetirementFormFeature() {
             <div className="rounded-md border border-border/60 bg-muted/30 p-4 text-sm text-muted-foreground">
               Fill in the required values to see your retirement projection.
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm">
+        <CardHeader className="space-y-2">
+          <CardTitle className="text-xl">Net worth growth projection</CardTitle>
+          <CardDescription>
+            {chartPlan
+              ? `Projected growth for "${chartPlan.name}" scenario`
+              : "Save a scenario to view your projected net worth growth over time."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!chartPlanId && !savedPlansLoading && (
+            <div className="rounded-md border border-border/60 bg-muted/30 p-4 text-sm text-muted-foreground">
+              Save a retirement scenario to see your projected net worth growth.
+            </div>
+          )}
+          {chartPlanId && (
+            <RetirementProjectionChart
+              isLoading={chartProjectionLoading}
+              chartData={chartData}
+              homeCurrency={homeCurrency}
+            />
+          )}
+          {chartPlan && chartPlanProjectionQuery?.data?.projectedRetirementDate && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              The green marker indicates your projected retirement date (
+              {new Intl.DateTimeFormat(undefined, {
+                year: "numeric",
+              }).format(
+                new Date(chartPlanProjectionQuery.data.projectedRetirementDate),
+              )}
+              ).
+            </p>
           )}
         </CardContent>
       </Card>

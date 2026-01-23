@@ -5,7 +5,7 @@ import {
   formatCurrencyCompact,
 } from "@/lib/currency-formatting";
 import { toPrivateValue } from "@/lib/private-value";
-import { MonthlyTotal } from "@/lib/types";
+import { MonthlyTotal, RetirementPlanProjection } from "@/lib/types";
 import {
   ChartData,
   ChartOptions,
@@ -297,6 +297,114 @@ export function getNetworthBreakdownChartOptions(
           },
         },
       },
+    },
+  };
+}
+
+export interface RetirementProjectionChartDataOptions {
+  projectedRetirementDate: string | null;
+}
+
+export function getRetirementProjectionChartData(
+  projections: RetirementPlanProjection[] | undefined,
+  options?: RetirementProjectionChartDataOptions,
+): ChartData<"line"> | null {
+  if (!projections || projections.length === 0) return null;
+
+  const yearlyMap = new Map<number, number>();
+  let retirementYear: number | null = null;
+
+  if (options?.projectedRetirementDate) {
+    retirementYear = new Date(options.projectedRetirementDate).getFullYear();
+  }
+
+  for (const p of projections) {
+    if (!yearlyMap.has(p.year) || p.month === 12) {
+      yearlyMap.set(p.year, p.projectedNetWorth);
+    }
+  }
+
+  const sortedYears = Array.from(yearlyMap.keys()).sort((a, b) => a - b);
+  const labels = sortedYears.map((y) => String(y));
+  const data = sortedYears.map((y) => yearlyMap.get(y) ?? 0);
+
+  const pointBackgroundColors = sortedYears.map((y) =>
+    retirementYear && y === retirementYear
+      ? "rgb(34, 197, 94)"
+      : "rgb(59, 130, 246)",
+  );
+  const pointRadii = sortedYears.map((y) =>
+    retirementYear && y === retirementYear ? 6 : 3,
+  );
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: "Projected Net Worth",
+        data,
+        fill: true,
+        backgroundColor: (context: ScriptableContext<"line">) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient.addColorStop(0, "rgba(59, 130, 246, 0.5)");
+          gradient.addColorStop(1, "rgba(59, 130, 246, 0.0)");
+          return gradient;
+        },
+        borderColor: "rgb(59, 130, 246)",
+        tension: 0.4,
+        pointRadius: pointRadii,
+        pointHoverRadius: 6,
+        pointBackgroundColor: pointBackgroundColors,
+      },
+    ],
+  };
+}
+
+export function getRetirementProjectionChartOptions(
+  homeCurrency: string,
+  isPrivacyMode: boolean = false,
+): ChartOptions<"line"> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+        callbacks: {
+          label: (context: TooltipItem<ChartType>) => {
+            let label = context.dataset.label || "";
+            if (label) label += ": ";
+            if (context.parsed.y !== null) {
+              label += toPrivateValue(
+                formatCurrencyCompact(context.parsed.y, homeCurrency),
+                isPrivacyMode,
+              );
+            }
+            return label;
+          },
+        },
+      },
+    },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        grid: { color: "rgba(0, 0, 0, 0.05)" },
+        ticks: {
+          callback: (value: string | number) =>
+            toPrivateValue(
+              formatCurrencyCompact(+value, homeCurrency),
+              isPrivacyMode,
+            ),
+        },
+      },
+    },
+    interaction: {
+      mode: "nearest",
+      axis: "x",
+      intersect: false,
     },
   };
 }

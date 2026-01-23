@@ -39,6 +39,7 @@ export const COMMANDS = {
   UPDATE_RETIREMENT_PLAN: "update_retirement_plan",
   DELETE_RETIREMENT_PLAN: "delete_retirement_plan",
   CALCULATE_RETIREMENT_PROJECTION: "calculate_retirement_projection",
+  GET_RETIREMENT_PLAN_PROJECTIONS: "get_retirement_plan_projections",
 
   // Onboarding
   GET_ONBOARDING_STATUS: "get_onboarding_status",

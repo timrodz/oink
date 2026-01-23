@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { RetirementPlan, ReturnScenario } from "@/lib/types";
+import { RetirementPlan, RetirementPlanProjection, ReturnScenario } from "@/lib/types";
 import { useQueries, useQuery } from "@tanstack/react-query";
 
 export const RETIREMENT_KEYS = {
@@ -36,6 +36,8 @@ export const RETIREMENT_KEYS = {
       inputs.expectedMonthlyExpenses,
       inputs.returnScenario,
     ] as const,
+  planProjections: (planId: string) =>
+    [...RETIREMENT_KEYS.all, "plan-projections", planId] as const,
 };
 
 export function useRetirementProjection(
@@ -81,4 +83,27 @@ export function useRetirementScenarioProjections(
       enabled: Boolean(plans?.length),
     })),
   });
+}
+
+export function useRetirementPlanProjections(
+  planId: string | null,
+  options?: { enabled?: boolean },
+): {
+  data: RetirementPlanProjection[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+} {
+  const query = useQuery({
+    queryKey: RETIREMENT_KEYS.planProjections(planId ?? ""),
+    queryFn: () => api.getRetirementPlanProjections(planId!),
+    enabled: Boolean(planId) && (options?.enabled ?? true),
+  });
+
+  return {
+    data: query.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
 }
