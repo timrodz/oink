@@ -20,6 +20,7 @@ pub struct RetirementProjection {
     pub final_net_worth: f64,
     pub monthly_income_3pct: f64,
     pub monthly_income_4pct: f64,
+    pub inflation_adjusted_expenses: f64,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -215,6 +216,7 @@ impl RetirementService {
         expected_monthly_expenses: f64,
         return_scenario: &str,
         target_retirement_date: Option<NaiveDate>,
+        inflation_rate: f64,
     ) -> Result<RetirementProjection, String> {
         let annual_return_rate = Self::annual_return_rate(return_scenario)?;
         let today = Local::now().date_naive();
@@ -234,12 +236,13 @@ impl RetirementService {
             }
             None => {
                 // Discovery mode: find earliest possible retirement date
-                let years = Self::years_to_retirement(
+                let years = Self::years_to_retirement_with_inflation(
                     starting_net_worth,
                     monthly_contribution,
                     expected_monthly_expenses,
                     WITHDRAWAL_RATE_HIGH,
                     annual_return_rate,
+                    inflation_rate,
                 )
                 .ok_or_else(|| {
                     "Retirement goal is not achievable with current inputs".to_string()
@@ -263,6 +266,11 @@ impl RetirementService {
         );
         let monthly_income_3pct = Self::monthly_income_3pct(final_net_worth);
         let monthly_income_4pct = Self::monthly_income_4pct(final_net_worth);
+        let inflation_adjusted_expenses = Self::inflation_adjusted_expenses(
+            expected_monthly_expenses,
+            inflation_rate,
+            years_to_retirement,
+        );
 
         Ok(RetirementProjection {
             projected_retirement_date,
@@ -270,6 +278,7 @@ impl RetirementService {
             final_net_worth,
             monthly_income_3pct,
             monthly_income_4pct,
+            inflation_adjusted_expenses,
         })
     }
 
@@ -430,6 +439,7 @@ mod tests {
             3_000.0,
             RETURN_SCENARIO_MODERATE,
             None,
+            0.0,
         )
         .expect("projection");
 
@@ -438,6 +448,7 @@ mod tests {
         assert!((projection.final_net_worth - 1_200_000.0).abs() < 0.001);
         assert!((projection.monthly_income_3pct - 3_000.0).abs() < 0.001);
         assert!((projection.monthly_income_4pct - 4_000.0).abs() < 0.001);
+        assert!((projection.inflation_adjusted_expenses - 3_000.0).abs() < 0.001);
     }
 
     #[test]
@@ -448,6 +459,7 @@ mod tests {
             3_000.0,
             RETURN_SCENARIO_CONSERVATIVE,
             None,
+            0.0,
         )
         .expect("projection");
 
@@ -472,6 +484,7 @@ mod tests {
             3_000.0,
             RETURN_SCENARIO_MODERATE,
             Some(target_date),
+            0.0,
         )
         .expect("projection");
 
@@ -491,6 +504,7 @@ mod tests {
             3_000.0,
             RETURN_SCENARIO_MODERATE,
             Some(past_date),
+            0.0,
         )
         .expect("projection");
 
@@ -511,11 +525,28 @@ mod tests {
             3_000.0,
             RETURN_SCENARIO_AGGRESSIVE,
             Some(target_date),
+            0.0,
         )
         .expect("projection");
 
         // 10% annual return, ~1 year: FV = 10000 * 1.10 + 1200 * ((1.10 - 1) / 0.10) ≈ 12_200
         assert!(projection.final_net_worth > 12_000.0 && projection.final_net_worth < 12_500.0);
+    }
+
+    #[test]
+    fn calculate_projection_returns_inflation_adjusted_expenses() {
+        let projection = RetirementService::calculate_projection(
+            200_000.0,
+            500.0,
+            2_500.0,
+            RETURN_SCENARIO_MODERATE,
+            None,
+            0.03,
+        )
+        .expect("projection");
+
+        assert!(projection.years_to_retirement >= 0.0);
+        assert!(projection.inflation_adjusted_expenses >= 2_500.0);
     }
 
     #[test]
