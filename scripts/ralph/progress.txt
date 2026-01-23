@@ -323,3 +323,15 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: Projection mode labels are derived directly from the target date input state.
 ---
+## 2026-01-23 23:28 NZDT - US-021
+- What was implemented
+  - Added scenario loading from the saved scenarios table to populate form inputs and chart selection.
+  - Highlighted the loaded scenario row and prevented delete clicks from triggering load.
+- Files changed
+  - src/features/retirement/retirement-form-feature.tsx
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Clicking a scenario row updates both form state and chart selection.
+---

@@ -34,7 +34,7 @@ import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/currency-formatting";
 import { getRetirementProjectionChartData } from "@/lib/charts";
-import { ReturnScenario } from "@/lib/types";
+import { RetirementPlan, ReturnScenario } from "@/lib/types";
 import {
   getEarliestScenarioIds,
   getHighestIncomeScenarioIds,
@@ -72,6 +72,7 @@ export function RetirementFormFeature() {
   const [hasEditedStartingNetWorth, setHasEditedStartingNetWorth] =
     useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [loadedPlanId, setLoadedPlanId] = useState<string | null>(null);
 
   const homeCurrency = settings?.homeCurrency ?? "USD";
   const latestNetWorthMissing =
@@ -117,7 +118,10 @@ export function RetirementFormFeature() {
     if (chartPlanId && savedPlans && !savedPlans.some((p) => p.id === chartPlanId)) {
       setChartPlanId(savedPlans[0]?.id ?? null);
     }
-  }, [savedPlans, chartPlanId]);
+    if (loadedPlanId && savedPlans && !savedPlans.some((p) => p.id === loadedPlanId)) {
+      setLoadedPlanId(null);
+    }
+  }, [savedPlans, chartPlanId, loadedPlanId]);
 
   const chartPlan = savedPlans?.find((p) => p.id === chartPlanId) ?? null;
   const chartPlanProjectionQuery = scenarioProjectionQueries.find(
@@ -240,6 +244,22 @@ export function RetirementFormFeature() {
             : "Unable to save the scenario right now.",
       });
     }
+  };
+
+  const handleLoadPlan = (plan: RetirementPlan) => {
+    setPlanName(plan.name);
+    setTargetRetirementDate(plan.targetRetirementDate ?? "");
+    setStartingNetWorth(formatNumberForInput(plan.startingNetWorth));
+    setMonthlyContribution(formatNumberForInput(plan.monthlyContribution));
+    setExpectedMonthlyExpenses(
+      formatNumberForInput(plan.expectedMonthlyExpenses),
+    );
+    setReturnScenario(plan.returnScenario);
+    setHasEditedStartingNetWorth(true);
+    setErrors([]);
+    setSaveNotice(null);
+    setLoadedPlanId(plan.id);
+    setChartPlanId(plan.id);
   };
 
   const projectedDateLabel = projectionQuery.data?.projectedRetirementDate
@@ -686,6 +706,7 @@ export function RetirementFormFeature() {
                     const isDeleting =
                       deletePlan.isPending &&
                       deletePlan.variables === row.plan.id;
+                    const isLoaded = loadedPlanId === row.plan.id;
                     const isEarliest = earliestScenarioIds.has(row.plan.id);
                     const isHighestIncome = highestIncomeScenarioIds.has(
                       row.plan.id,
@@ -697,13 +718,24 @@ export function RetirementFormFeature() {
                         : "Unavailable";
 
                     return (
-                      <TableRow key={row.plan.id}>
+                      <TableRow
+                        key={row.plan.id}
+                        className={`cursor-pointer transition-colors ${
+                          isLoaded ? "bg-sky-50" : "hover:bg-muted/40"
+                        }`}
+                        onClick={() => handleLoadPlan(row.plan)}
+                      >
                         <TableCell className="max-w-[220px] whitespace-normal">
                           <div className="space-y-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="font-medium text-foreground">
                                 {row.plan.name}
                               </span>
+                              {isLoaded && (
+                                <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700">
+                                  Loaded
+                                </span>
+                              )}
                               {isEarliest && (
                                 <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
                                   Earliest
@@ -831,7 +863,10 @@ export function RetirementFormFeature() {
                             variant="ghost"
                             size="sm"
                             className="text-destructive hover:text-destructive"
-                            onClick={() => deletePlan.mutate(row.plan.id)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              deletePlan.mutate(row.plan.id);
+                            }}
                             disabled={deletePlan.isPending}
                           >
                             <Trash2Icon className="h-4 w-4" />
