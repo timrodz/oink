@@ -1,3 +1,4 @@
+use crate::constants;
 use crate::services::balance_sheet::BalanceSheetService;
 use crate::services::currency_rate::CurrencyRateService;
 use crate::services::user_settings::UserSettingsService;
@@ -16,7 +17,30 @@ struct FrankfurterResponse {
 pub struct SyncService;
 
 impl SyncService {
+    fn get_query_url(
+        base_url: &str,
+        start_date: &str,
+        end_date: &str,
+        home_currency: &str,
+        symbols: &str,
+    ) -> String {
+        let query_params = format!(
+            "{}..{}?base={}&symbols={}",
+            start_date, end_date, home_currency, symbols
+        );
+
+        format!("{base_url}/{query_params}")
+    }
+
     pub async fn sync_exchange_rates(pool: &SqlitePool) -> Result<(), String> {
+        Self::sync_exchange_rates_with_client_and_url(pool, None, None).await
+    }
+
+    pub async fn sync_exchange_rates_with_client_and_url(
+        pool: &SqlitePool,
+        client: Option<Client>,
+        base_url: Option<String>,
+    ) -> Result<(), String> {
         println!("[Sync] Starting exchange rate sync...");
 
         // 1. Get Home Currency
@@ -50,19 +74,25 @@ impl SyncService {
 
         // 4. Existing Rates for Dedup and Finalization Check
         let all_rates = CurrencyRateService::get_all(pool).await?;
-        let mut rate_map: HashMap<String, CurrencyRate> = HashMap::new();
-        for r in all_rates {
-            let key = format!(
-                "{}-{}-{}-{}",
-                r.year, r.month, r.from_currency, r.to_currency
-            );
-            rate_map.insert(key, r);
-        }
+        let existing_rates: HashMap<String, CurrencyRate> = all_rates
+            .into_iter()
+            .map(|rate| {
+                let key = format!(
+                    "{}-{}-{}-{}",
+                    rate.year, rate.month, rate.from_currency, rate.to_currency
+                );
 
-        let client = Client::builder()
-            .timeout(std::time::Duration::from_secs(10))
-            .build()
-            .map_err(|e| format!("Failed to build HTTP client: {e}"))?;
+                (key, rate)
+            })
+            .collect();
+
+        let client = match client {
+            Some(c) => c,
+            None => Client::builder()
+                .timeout(std::time::Duration::from_secs(10))
+                .build()
+                .map_err(|e| format!("Failed to build HTTP client: {e}"))?,
+        };
         let today = chrono::Utc::now().naive_utc().date();
         let today_year = today.year();
 
@@ -73,21 +103,24 @@ impl SyncService {
                    );
             return Ok(());
         }
-        let symbols = foreign_currencies.join(",");
+        let foreign_currency_symbols = foreign_currencies.join(",");
         let start_date = format!("{earliest_year}-01-01");
         let end_date = format!("{}", today.format("%Y-%m-%d"));
 
-        let optimized_url = crate::constants::FRANKFURTER_BASE_URL
-            .replacen("{}", &start_date, 1)
-            .replacen("{}", &end_date, 1)
-            .replacen("{}", home_currency, 1)
-            .replacen("{}", &symbols, 1);
+        let base_url = base_url.unwrap_or(constants::FRANKFURTER_BASE_URL.to_string());
+        let query_url = Self::get_query_url(
+            &base_url,
+            &start_date,
+            &end_date,
+            home_currency,
+            &foreign_currency_symbols,
+        );
 
         println!(
             "[Sync] Fetching rates from {start_date} to {end_date} with base currency: {home_currency}",
         );
 
-        let resp = match client.get(&optimized_url).send().await {
+        let resp = match client.get(&query_url).send().await {
             Ok(r) => r,
             Err(e) => {
                 eprintln!("[Sync] Request error: {e}");
@@ -103,7 +136,8 @@ impl SyncService {
         match resp.json::<FrankfurterResponse>().await {
             Ok(data) => {
                 let _ =
-                    Self::process_and_save_rates(pool, data.rates, home_currency, &rate_map).await;
+                    Self::process_and_save_rates(pool, data.rates, home_currency, &existing_rates)
+                        .await;
             }
             Err(e) => return Err(format!("Failed to parse JSON: {e}")),
         }
@@ -116,9 +150,9 @@ impl SyncService {
         pool: &SqlitePool,
         rates: HashMap<String, HashMap<String, f64>>,
         home_currency: &str,
-        rate_map: &HashMap<String, CurrencyRate>,
+        existing_rates: &HashMap<String, CurrencyRate>,
     ) -> Result<(), String> {
-        let monthly_rates = Self::process_frankfurter_rates(rates);
+        let monthly_rates = Self::parse_frankfurter_rates_for_most_recent(rates);
         let total_to_process = monthly_rates.values().map(|m| m.len()).sum::<usize>();
         println!("[Sync] Processing {total_to_process} rates...",);
 
@@ -142,7 +176,7 @@ impl SyncService {
 
             for (foreign, rate_in_home) in rates_obj {
                 let key = format!("{year}-{month}-{foreign}-{home_currency}");
-                let existing_rate_for_end_of_month = match rate_map.get(&key) {
+                let existing_rate_for_end_of_month = match existing_rates.get(&key) {
                     Some(rate) => rate.timestamp.naive_utc().date() > last_day,
                     None => false,
                 };
@@ -151,7 +185,7 @@ impl SyncService {
                 }
 
                 let inverted_rate = 1.0 / rate_in_home;
-                let existing_id = rate_map.get(&key).map(|r| r.id.clone());
+                let existing_id = existing_rates.get(&key).map(|r| r.id.clone());
 
                 println!(
                     "Processing rate for {month}/{year} ({foreign}->{home_currency}): {rate_in_home}->{inverted_rate}",
@@ -182,7 +216,12 @@ impl SyncService {
         Ok(())
     }
 
-    fn process_frankfurter_rates(
+    /**
+     * Finds the most recent date of any given month and returns those currency rates
+     * Given {"2024-12-31": {"EUR": 0.5516, "USD": 0.5913}, "2023-06-30": {"EUR": 0.5681, "USD": 0.6089}, "2023-12-31": {"USD": 0.6187, "EUR": 0.5772}, "2022-12-31": {"USD": 0.642, "EUR": 0.5985}, "2024-01-31": {"USD": 0.615, "EUR": 0.5742}, "2022-02-28": {"EUR": 0.5912, "USD": 0.635}, "2024-06-30": {"USD": 0.6098, "EUR": 0.5693}, "2022-01-31": {"USD": 0.6321, "EUR": 0.5891}}
+     * Return {(2022, 2): {"EUR": 0.5912, "USD": 0.635}, (2024, 12): {"EUR": 0.5516, "USD": 0.5913}, (2024, 1): {"USD": 0.615, "EUR": 0.5742}, (2023, 6): {"EUR": 0.5681, "USD": 0.6089}, (2023, 12): {"USD": 0.6187, "EUR": 0.5772}, (2022, 12): {"USD": 0.642, "EUR": 0.5985}, (2024, 6): {"USD": 0.6098, "EUR": 0.5693}, (2022, 1): {"USD": 0.6321, "EUR": 0.5891}}
+     */
+    fn parse_frankfurter_rates_for_most_recent(
         rates: HashMap<String, HashMap<String, f64>>,
     ) -> HashMap<(i32, u32), HashMap<String, f64>> {
         let mut monthly_max_dates: HashMap<(i32, u32), NaiveDate> = HashMap::new();
@@ -214,6 +253,8 @@ impl SyncService {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use wiremock::matchers::{method, query_param};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[test]
     fn test_process_frankfurter_rates() {
@@ -234,7 +275,7 @@ mod tests {
         m2_d1.insert("EUR".to_string(), 1.1);
         rates.insert("2024-02-05".to_string(), m2_d1);
 
-        let processed = SyncService::process_frankfurter_rates(rates);
+        let processed = SyncService::parse_frankfurter_rates_for_most_recent(rates);
 
         assert_eq!(processed.len(), 2);
         assert_eq!(processed.get(&(2024, 1)).unwrap().get("EUR").unwrap(), &0.9);
@@ -272,7 +313,7 @@ mod tests {
         m2024_03_05.insert("EUR".to_string(), 0.55);
         rates.insert("2024-03-05".to_string(), m2024_03_05);
 
-        let processed = SyncService::process_frankfurter_rates(rates);
+        let processed = SyncService::parse_frankfurter_rates_for_most_recent(rates);
 
         assert_eq!(processed.len(), 4);
 
@@ -364,19 +405,43 @@ mod tests {
                 .await
                 .expect("Failed to create 2024 balance sheet");
 
-        // Execute sync
-        // TODO: Mock API response
-        let result = SyncService::sync_exchange_rates(&pool).await;
+        // Setup mock server with realistic fixture data
+        let mock_body = r#"{
+            "rates": {
+                "2022-01-31": {"USD": 0.6321, "EUR": 0.5891},
+                "2022-02-28": {"USD": 0.6350, "EUR": 0.5912},
+                "2022-12-31": {"USD": 0.6420, "EUR": 0.5985},
+                "2023-06-30": {"USD": 0.6089, "EUR": 0.5681},
+                "2023-12-31": {"USD": 0.6187, "EUR": 0.5772},
+                "2024-01-31": {"USD": 0.6150, "EUR": 0.5742},
+                "2024-06-30": {"USD": 0.6098, "EUR": 0.5693},
+                "2024-12-31": {"USD": 0.5913, "EUR": 0.5516}
+            }
+        }"#;
+        let mock_server = MockServer::start().await;
 
-        // Verify sync completed successfully
-        assert!(result.is_ok(), "Sync should succeed");
+        Mock::given(method("GET"))
+            .and(query_param("base", "NZD"))
+            .respond_with(ResponseTemplate::new(200).set_body_raw(mock_body, "application/json"))
+            .mount(&mock_server)
+            .await;
 
-        // Verify rates were saved for all years (2022, 2023, 2024) and all months
+        let test_client = Client::new();
+        let test_base_url = mock_server.uri();
+
+        let result = SyncService::sync_exchange_rates_with_client_and_url(
+            &pool,
+            Some(test_client),
+            Some(test_base_url),
+        )
+        .await;
+
+        assert!(result.is_ok(), "Sync should succeed: {:?}", result);
+
         let all_rates = crate::services::currency_rate::CurrencyRateService::get_all(&pool)
             .await
             .expect("Failed to get rates");
 
-        // We should have rates for USD and EUR from NZD
         let expected_pairs = vec![("USD", "NZD"), ("EUR", "NZD")];
 
         for (from_currency, to_currency) in &expected_pairs {
