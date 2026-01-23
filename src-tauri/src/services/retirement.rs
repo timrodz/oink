@@ -126,16 +126,46 @@ impl RetirementService {
         monthly_contribution: f64,
         expected_monthly_expenses: f64,
         return_scenario: &str,
+        target_retirement_date: Option<NaiveDate>,
     ) -> Result<RetirementProjection, String> {
         let annual_return_rate = Self::annual_return_rate(return_scenario)?;
-        let years_to_retirement = Self::years_to_retirement(
-            starting_net_worth,
-            monthly_contribution,
-            expected_monthly_expenses,
-            WITHDRAWAL_RATE_HIGH,
-            annual_return_rate,
-        )
-        .ok_or_else(|| "Retirement goal is not achievable with current inputs".to_string())?;
+        let today = Local::now().date_naive();
+
+        // If target date is set, use it; otherwise calculate earliest possible retirement date
+        let (years_to_retirement, projected_retirement_date) = match target_retirement_date {
+            Some(target_date) => {
+                // Target date mode: calculate years from today to target date
+                let days_diff = (target_date - today).num_days();
+                let years = if days_diff <= 0 {
+                    0.0
+                } else {
+                    days_diff as f64 / 365.25
+                };
+                let date = if years <= 0.0 { None } else { Some(target_date) };
+                (years, date)
+            }
+            None => {
+                // Discovery mode: find earliest possible retirement date
+                let years = Self::years_to_retirement(
+                    starting_net_worth,
+                    monthly_contribution,
+                    expected_monthly_expenses,
+                    WITHDRAWAL_RATE_HIGH,
+                    annual_return_rate,
+                )
+                .ok_or_else(|| {
+                    "Retirement goal is not achievable with current inputs".to_string()
+                })?;
+
+                let date = if years <= 0.0 {
+                    None
+                } else {
+                    let days = (years * 365.25).round() as i64;
+                    Some(today + Duration::days(days))
+                };
+                (years, date)
+            }
+        };
 
         let final_net_worth = Self::compound_growth_future_value(
             starting_net_worth,
@@ -145,13 +175,6 @@ impl RetirementService {
         );
         let monthly_income_3pct = Self::monthly_income_3pct(final_net_worth);
         let monthly_income_4pct = Self::monthly_income_4pct(final_net_worth);
-        let projected_retirement_date = if years_to_retirement <= 0.0 {
-            None
-        } else {
-            let today = Local::now().date_naive();
-            let days = (years_to_retirement * 365.25).round() as i64;
-            Some(today + Duration::days(days))
-        };
 
         Ok(RetirementProjection {
             projected_retirement_date,
@@ -287,6 +310,7 @@ mod tests {
             0.0,
             3_000.0,
             RETURN_SCENARIO_MODERATE,
+            None,
         )
         .expect("projection");
 
@@ -298,12 +322,13 @@ mod tests {
     }
 
     #[test]
-    fn calculate_projection_returns_date_for_future_retirement() {
+    fn calculate_projection_discovery_mode_returns_date_for_future_retirement() {
         let projection = RetirementService::calculate_projection(
             50_000.0,
             500.0,
             3_000.0,
             RETURN_SCENARIO_CONSERVATIVE,
+            None,
         )
         .expect("projection");
 
@@ -315,6 +340,63 @@ mod tests {
                 .expect("projection date")
                 >= today
         );
+    }
+
+    #[test]
+    fn calculate_projection_target_date_mode_uses_specified_date() {
+        let today = Local::now().date_naive();
+        let target_date = NaiveDate::from_ymd_opt(today.year() + 10, 6, 15).unwrap();
+
+        let projection = RetirementService::calculate_projection(
+            100_000.0,
+            1_000.0,
+            3_000.0,
+            RETURN_SCENARIO_MODERATE,
+            Some(target_date),
+        )
+        .expect("projection");
+
+        assert_eq!(projection.projected_retirement_date, Some(target_date));
+        assert!(projection.years_to_retirement > 9.0 && projection.years_to_retirement < 11.0);
+        assert!(projection.final_net_worth > 100_000.0);
+    }
+
+    #[test]
+    fn calculate_projection_target_date_mode_past_date_returns_zero_years() {
+        let today = Local::now().date_naive();
+        let past_date = today - Duration::days(30);
+
+        let projection = RetirementService::calculate_projection(
+            100_000.0,
+            1_000.0,
+            3_000.0,
+            RETURN_SCENARIO_MODERATE,
+            Some(past_date),
+        )
+        .expect("projection");
+
+        assert_eq!(projection.years_to_retirement, 0.0);
+        assert_eq!(projection.projected_retirement_date, None);
+        assert!((projection.final_net_worth - 100_000.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn calculate_projection_target_date_mode_calculates_correct_net_worth() {
+        let today = Local::now().date_naive();
+        let target_date = NaiveDate::from_ymd_opt(today.year() + 1, today.month(), today.day())
+            .unwrap_or_else(|| NaiveDate::from_ymd_opt(today.year() + 1, today.month(), 28).unwrap());
+
+        let projection = RetirementService::calculate_projection(
+            10_000.0,
+            100.0,
+            3_000.0,
+            RETURN_SCENARIO_AGGRESSIVE,
+            Some(target_date),
+        )
+        .expect("projection");
+
+        // 10% annual return, ~1 year: FV = 10000 * 1.10 + 1200 * ((1.10 - 1) / 0.10) ≈ 12_200
+        assert!(projection.final_net_worth > 12_000.0 && projection.final_net_worth < 12_500.0);
     }
 
     #[test]

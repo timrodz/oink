@@ -340,12 +340,14 @@ pub async fn calculate_retirement_projection(
     monthly_contribution: f64,
     expected_monthly_expenses: f64,
     return_scenario: String,
+    target_retirement_date: Option<chrono::NaiveDate>,
 ) -> Result<RetirementProjection, String> {
     RetirementService::calculate_projection(
         starting_net_worth,
         monthly_contribution,
         expected_monthly_expenses,
         &return_scenario,
+        target_retirement_date,
     )
 }
 
