@@ -8,6 +8,7 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
 - Frontend Tauri commands are wrapped in React Query hooks under src/hooks with stable query keys.
 - Scenario comparison projections are fetched per plan via the useRetirementScenarioProjections hook.
 - Retirement projection queries include target retirement date in query keys to prevent stale cache results.
+- Inflation-aware retirement timing uses RetirementService::years_to_retirement_with_inflation.
 
 ## 2026-01-23 00:14 NZDT - US-001
 - What was implemented
@@ -360,4 +361,19 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Patterns discovered: None.
   - Gotchas encountered: None.
   - Useful context: None.
+---
+## 2026-01-23 23:47 NZDT - US-024
+- What was implemented
+  - Added inflation-adjusted expense helpers and inflation-aware retirement timing calculations.
+  - Updated plan retirement date calculations to account for inflation rate.
+  - Added unit tests covering inflation adjustments and comparison logic.
+- Files changed
+  - src-tauri/src/services/retirement.rs
+  - src-tauri/src/commands.rs
+  - scripts/ralph/prd.json
+  - scripts/ralph/progress.txt
+- **Learnings for future iterations:**
+  - Patterns discovered: use RetirementService::years_to_retirement_with_inflation when inflation_rate is available.
+  - Gotchas encountered: None.
+  - Useful context: Inflation adjustment compounds monthly expenses before computing target net worth.
 ---

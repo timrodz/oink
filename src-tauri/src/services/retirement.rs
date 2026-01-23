@@ -32,6 +32,18 @@ pub struct ProjectionDataPoint {
 pub struct RetirementService;
 
 impl RetirementService {
+    pub fn inflation_adjusted_expenses(
+        expected_monthly_expenses: f64,
+        inflation_rate: f64,
+        years: f64,
+    ) -> f64 {
+        if expected_monthly_expenses <= 0.0 || inflation_rate <= 0.0 || years <= 0.0 {
+            return expected_monthly_expenses;
+        }
+
+        expected_monthly_expenses * (1.0 + inflation_rate).powf(years)
+    }
+
     pub fn annual_return_rate(scenario: &str) -> Result<f64, String> {
         match scenario {
             RETURN_SCENARIO_CONSERVATIVE => Ok(RETURN_RATE_CONSERVATIVE),
@@ -74,16 +86,17 @@ impl RetirementService {
         Some(expected_monthly_expenses * 12.0 / withdrawal_rate)
     }
 
-    pub fn years_to_retirement(
+    fn years_to_target_net_worth(
         starting_net_worth: f64,
         monthly_contribution: f64,
-        expected_monthly_expenses: f64,
-        withdrawal_rate: f64,
+        target_net_worth: f64,
         annual_return_rate: f64,
     ) -> Option<f64> {
-        let target = Self::target_net_worth(expected_monthly_expenses, withdrawal_rate)?;
+        if target_net_worth <= 0.0 {
+            return None;
+        }
 
-        if starting_net_worth >= target {
+        if starting_net_worth >= target_net_worth {
             return Some(0.0);
         }
 
@@ -93,11 +106,11 @@ impl RetirementService {
             if annual_contribution <= 0.0 {
                 return None;
             }
-            return Some((target - starting_net_worth) / annual_contribution);
+            return Some((target_net_worth - starting_net_worth) / annual_contribution);
         }
 
         let contribution_factor = annual_contribution / annual_return_rate;
-        let numerator = target + contribution_factor;
+        let numerator = target_net_worth + contribution_factor;
         let denominator = starting_net_worth + contribution_factor;
 
         if numerator <= 0.0 || denominator <= 0.0 {
@@ -113,12 +126,87 @@ impl RetirementService {
         Some(years)
     }
 
+    pub fn years_to_retirement(
+        starting_net_worth: f64,
+        monthly_contribution: f64,
+        expected_monthly_expenses: f64,
+        withdrawal_rate: f64,
+        annual_return_rate: f64,
+    ) -> Option<f64> {
+        Self::years_to_retirement_with_inflation(
+            starting_net_worth,
+            monthly_contribution,
+            expected_monthly_expenses,
+            withdrawal_rate,
+            annual_return_rate,
+            0.0,
+        )
+    }
+
+    pub fn years_to_retirement_with_inflation(
+        starting_net_worth: f64,
+        monthly_contribution: f64,
+        expected_monthly_expenses: f64,
+        withdrawal_rate: f64,
+        annual_return_rate: f64,
+        inflation_rate: f64,
+    ) -> Option<f64> {
+        let base_target = Self::target_net_worth(expected_monthly_expenses, withdrawal_rate)?;
+
+        if inflation_rate <= 0.0 {
+            return Self::years_to_target_net_worth(
+                starting_net_worth,
+                monthly_contribution,
+                base_target,
+                annual_return_rate,
+            );
+        }
+
+        let mut years = Self::years_to_target_net_worth(
+            starting_net_worth,
+            monthly_contribution,
+            base_target,
+            annual_return_rate,
+        )?;
+
+        for _ in 0..20 {
+            let adjusted_expenses =
+                Self::inflation_adjusted_expenses(expected_monthly_expenses, inflation_rate, years);
+            let adjusted_target = Self::target_net_worth(adjusted_expenses, withdrawal_rate)?;
+            let next_years = Self::years_to_target_net_worth(
+                starting_net_worth,
+                monthly_contribution,
+                adjusted_target,
+                annual_return_rate,
+            )?;
+
+            if (next_years - years).abs() < 1e-4 {
+                return Some(next_years);
+            }
+
+            years = next_years;
+        }
+
+        Some(years)
+    }
+
     pub fn monthly_income_3pct(net_worth: f64) -> f64 {
         Self::monthly_income_from_withdrawal(net_worth, WITHDRAWAL_RATE_LOW)
     }
 
     pub fn monthly_income_4pct(net_worth: f64) -> f64 {
         Self::monthly_income_from_withdrawal(net_worth, WITHDRAWAL_RATE_HIGH)
+    }
+
+    pub fn income_meets_expenses(
+        monthly_income: f64,
+        expected_monthly_expenses: f64,
+        inflation_rate: f64,
+        years: f64,
+    ) -> bool {
+        let adjusted_expenses =
+            Self::inflation_adjusted_expenses(expected_monthly_expenses, inflation_rate, years);
+        monthly_income >= adjusted_expenses
     }
 
     pub fn calculate_projection(
@@ -273,6 +361,19 @@ mod tests {
     }
 
     #[test]
+    fn inflation_adjusted_expenses_compounds_over_time() {
+        let adjusted = RetirementService::inflation_adjusted_expenses(1_000.0, 0.03, 2.0);
+        let expected = 1_000.0 * 1.03_f64.powf(2.0);
+        assert!((adjusted - expected).abs() < 0.001);
+    }
+
+    #[test]
+    fn income_meets_expenses_accounts_for_inflation() {
+        let meets = RetirementService::income_meets_expenses(4_000.0, 3_500.0, 0.05, 10.0);
+        assert!(!meets);
+    }
+
+    #[test]
     fn compound_growth_applies_all_return_scenarios() {
         let base = 10_000.0;
         let years = 1.0;
@@ -301,6 +402,24 @@ mod tests {
         let years = RetirementService::years_to_retirement(1_000_000.0, 0.0, 3_000.0, 0.04, 0.07)
             .unwrap();
         assert!((years - 0.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn years_to_retirement_with_inflation_increases_target() {
+        let base_years =
+            RetirementService::years_to_retirement(50_000.0, 500.0, 3_000.0, 0.04, 0.07)
+                .unwrap();
+        let inflated_years = RetirementService::years_to_retirement_with_inflation(
+            50_000.0,
+            500.0,
+            3_000.0,
+            0.04,
+            0.07,
+            0.03,
+        )
+        .unwrap();
+
+        assert!(inflated_years >= base_years);
     }
 
     #[test]

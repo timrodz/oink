@@ -238,12 +238,13 @@ pub async fn create_retirement_plan(
     let retirement_date = match target_retirement_date {
         Some(date) => date,
         None => {
-            let years = RetirementService::years_to_retirement(
+            let years = RetirementService::years_to_retirement_with_inflation(
                 starting_net_worth,
                 monthly_contribution,
                 expected_monthly_expenses,
                 WITHDRAWAL_RATE_HIGH,
                 annual_return_rate,
+                inflation_rate,
             )
             .unwrap_or(0.0);
             let today = chrono::Local::now().date_naive();
@@ -308,12 +309,13 @@ pub async fn update_retirement_plan(
     let retirement_date = match target_retirement_date {
         Some(date) => date,
         None => {
-            let years = RetirementService::years_to_retirement(
+            let years = RetirementService::years_to_retirement_with_inflation(
                 starting_net_worth,
                 monthly_contribution,
                 expected_monthly_expenses,
                 WITHDRAWAL_RATE_HIGH,
                 annual_return_rate,
+                inflation_rate,
             )
             .unwrap_or(0.0);
             let today = chrono::Local::now().date_naive();
