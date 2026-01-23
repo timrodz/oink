@@ -319,16 +319,27 @@ export function RetirementFormFeature() {
     }).format(new Date(`${projectedRetirementDate}T00:00:00`));
   };
 
+  const hasInflationAdjustment =
+    Boolean(projectionQuery.data) && parsedInflationRate > 0;
+  const comparisonExpenses = projectionQuery.data
+    ? hasInflationAdjustment
+      ? projectionQuery.data.inflationAdjustedExpenses
+      : parsedExpectedMonthlyExpenses
+    : parsedExpectedMonthlyExpenses;
+  const expenseStatusLabel = hasInflationAdjustment
+    ? "inflation-adjusted expenses"
+    : "expected monthly expenses";
+
   const income3Status = projectionQuery.data
     ? getProjectionStatus(
         projectionQuery.data.monthlyIncome3pct,
-        parsedExpectedMonthlyExpenses,
+        comparisonExpenses,
       )
     : "shortfall";
   const income4Status = projectionQuery.data
     ? getProjectionStatus(
         projectionQuery.data.monthlyIncome4pct,
-        parsedExpectedMonthlyExpenses,
+        comparisonExpenses,
       )
     : "shortfall";
 
@@ -618,8 +629,8 @@ export function RetirementFormFeature() {
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {income3Status === "onTrack"
-                      ? "Meets expected monthly expenses."
-                      : "Falls short of expected expenses."}
+                      ? `Meets ${expenseStatusLabel}.`
+                      : `Falls short of ${expenseStatusLabel}.`}
                   </p>
                 </div>
                 <div className="rounded-md border border-border/60 p-4">
@@ -634,11 +645,38 @@ export function RetirementFormFeature() {
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {income4Status === "onTrack"
-                      ? "Meets expected monthly expenses."
-                      : "Falls short of expected expenses."}
+                      ? `Meets ${expenseStatusLabel}.`
+                      : `Falls short of ${expenseStatusLabel}.`}
                   </p>
                 </div>
               </div>
+              {hasInflationAdjustment && projectionQuery.data && (
+                <div className="rounded-md border border-border/60 bg-muted/20 p-4">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Expenses at retirement
+                  </p>
+                  <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between">
+                      <span>Current expenses</span>
+                      <span className="font-medium text-foreground">
+                        {formatCurrency(
+                          parsedExpectedMonthlyExpenses,
+                          homeCurrency,
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Inflation-adjusted expenses at retirement</span>
+                      <span className="font-semibold text-amber-700">
+                        {formatCurrency(
+                          projectionQuery.data.inflationAdjustedExpenses,
+                          homeCurrency,
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
