@@ -6,8 +6,9 @@ use crate::services::balance_sheet::BalanceSheetService;
 use crate::services::entry::EntryService;
 use crate::services::net_worth::{NetWorthDataPoint, NetWorthService};
 use crate::services::onboarding::OnboardingService;
-use crate::services::retirement::{RetirementProjection, RetirementService};
+use crate::services::retirement::{RetirementProjection, RetirementService, WITHDRAWAL_RATE_HIGH};
 use crate::services::retirement_plan::RetirementPlanService;
+use crate::services::retirement_plan_projection::RetirementPlanProjectionService;
 use crate::services::user_settings::UserSettingsService;
 use crate::AppState;
 use chrono::NaiveDate;
@@ -218,16 +219,45 @@ pub async fn create_retirement_plan(
     expected_monthly_expenses: f64,
     return_scenario: String,
 ) -> Result<RetirementPlan, String> {
-    RetirementPlanService::create(
+    let plan = RetirementPlanService::create(
         &state.db,
         name,
         target_retirement_date,
         starting_net_worth,
         monthly_contribution,
         expected_monthly_expenses,
-        return_scenario,
+        return_scenario.clone(),
     )
-    .await
+    .await?;
+
+    let annual_return_rate = RetirementService::annual_return_rate(&return_scenario)?;
+
+    let retirement_date = match target_retirement_date {
+        Some(date) => date,
+        None => {
+            let years = RetirementService::years_to_retirement(
+                starting_net_worth,
+                monthly_contribution,
+                expected_monthly_expenses,
+                WITHDRAWAL_RATE_HIGH,
+                annual_return_rate,
+            )
+            .unwrap_or(0.0);
+            let today = chrono::Local::now().date_naive();
+            today + chrono::Duration::days((years * 365.25) as i64)
+        }
+    };
+
+    let data_points = RetirementService::generate_projection_data_points(
+        starting_net_worth,
+        monthly_contribution,
+        annual_return_rate,
+        retirement_date,
+    );
+
+    RetirementPlanProjectionService::save_projections(&state.db, &plan.id, data_points).await?;
+
+    Ok(plan)
 }
 
 #[tauri::command]
@@ -256,7 +286,7 @@ pub async fn update_retirement_plan(
     expected_monthly_expenses: f64,
     return_scenario: String,
 ) -> Result<RetirementPlan, String> {
-    RetirementPlanService::update(
+    let plan = RetirementPlanService::update(
         &state.db,
         id,
         name,
@@ -264,9 +294,38 @@ pub async fn update_retirement_plan(
         starting_net_worth,
         monthly_contribution,
         expected_monthly_expenses,
-        return_scenario,
+        return_scenario.clone(),
     )
-    .await
+    .await?;
+
+    let annual_return_rate = RetirementService::annual_return_rate(&return_scenario)?;
+
+    let retirement_date = match target_retirement_date {
+        Some(date) => date,
+        None => {
+            let years = RetirementService::years_to_retirement(
+                starting_net_worth,
+                monthly_contribution,
+                expected_monthly_expenses,
+                WITHDRAWAL_RATE_HIGH,
+                annual_return_rate,
+            )
+            .unwrap_or(0.0);
+            let today = chrono::Local::now().date_naive();
+            today + chrono::Duration::days((years * 365.25) as i64)
+        }
+    };
+
+    let data_points = RetirementService::generate_projection_data_points(
+        starting_net_worth,
+        monthly_contribution,
+        annual_return_rate,
+        retirement_date,
+    );
+
+    RetirementPlanProjectionService::save_projections(&state.db, &plan.id, data_points).await?;
+
+    Ok(plan)
 }
 
 #[tauri::command]

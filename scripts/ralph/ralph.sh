@@ -89,7 +89,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
 
   # Run the selected tool with the ralph prompt
   if [[ "$TOOL" == "amp" ]]; then
-    OUTPUT=$(cat "$SCRIPT_DIR/prompt-amp.md" | amp --dangerously-allow-all 2>&1) || true
+    OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | amp --dangerously-allow-all 2>&1) || true
   elif [[ "$TOOL" == "codex" ]]; then
     OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | codex exec --yolo 2>&1 | tee /dev/stderr) || true
   elif [[ "$TOOL" == "cursor" ]]; then

@@ -1,4 +1,4 @@
-use chrono::{Duration, Local, NaiveDate};
+use chrono::{Datelike, Duration, Local, NaiveDate};
 use serde::{Deserialize, Serialize};
 
 pub const RETURN_SCENARIO_CONSERVATIVE: &str = "conservative";
@@ -20,6 +20,13 @@ pub struct RetirementProjection {
     pub final_net_worth: f64,
     pub monthly_income_3pct: f64,
     pub monthly_income_4pct: f64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ProjectionDataPoint {
+    pub year: i32,
+    pub month: i32,
+    pub projected_net_worth: f64,
 }
 
 pub struct RetirementService;
@@ -154,6 +161,51 @@ impl RetirementService {
             monthly_income_4pct,
         })
     }
+
+    pub fn generate_projection_data_points(
+        starting_net_worth: f64,
+        monthly_contribution: f64,
+        annual_return_rate: f64,
+        retirement_date: NaiveDate,
+    ) -> Vec<ProjectionDataPoint> {
+        let today = Local::now().date_naive();
+        let mut data_points = Vec::new();
+
+        if retirement_date <= today {
+            return vec![ProjectionDataPoint {
+                year: today.year(),
+                month: today.month() as i32,
+                projected_net_worth: starting_net_worth,
+            }];
+        }
+
+        let monthly_return_rate = (1.0 + annual_return_rate).powf(1.0 / 12.0) - 1.0;
+        let mut current_net_worth = starting_net_worth;
+        let mut current_date = today;
+
+        while current_date <= retirement_date {
+            data_points.push(ProjectionDataPoint {
+                year: current_date.year(),
+                month: current_date.month() as i32,
+                projected_net_worth: current_net_worth,
+            });
+
+            current_net_worth = current_net_worth * (1.0 + monthly_return_rate) + monthly_contribution;
+
+            let next_month = if current_date.month() == 12 {
+                NaiveDate::from_ymd_opt(current_date.year() + 1, 1, 1)
+            } else {
+                NaiveDate::from_ymd_opt(current_date.year(), current_date.month() + 1, 1)
+            };
+
+            match next_month {
+                Some(d) => current_date = d,
+                None => break,
+            }
+        }
+
+        data_points
+    }
 }
 
 #[cfg(test)]
@@ -263,5 +315,62 @@ mod tests {
                 .expect("projection date")
                 >= today
         );
+    }
+
+    #[test]
+    fn generate_projection_data_points_returns_single_point_for_past_date() {
+        let today = Local::now().date_naive();
+        let past_date = today - Duration::days(30);
+
+        let points = RetirementService::generate_projection_data_points(
+            100_000.0,
+            1_000.0,
+            0.07,
+            past_date,
+        );
+
+        assert_eq!(points.len(), 1);
+        assert_eq!(points[0].year, today.year());
+        assert_eq!(points[0].month, today.month() as i32);
+        assert!((points[0].projected_net_worth - 100_000.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn generate_projection_data_points_creates_monthly_points() {
+        let today = Local::now().date_naive();
+        let retirement_date = NaiveDate::from_ymd_opt(today.year() + 1, today.month(), 1).unwrap();
+
+        let points = RetirementService::generate_projection_data_points(
+            100_000.0,
+            1_000.0,
+            0.07,
+            retirement_date,
+        );
+
+        assert!(points.len() >= 12);
+        assert_eq!(points[0].projected_net_worth, 100_000.0);
+        assert!(points.last().unwrap().projected_net_worth > 100_000.0);
+    }
+
+    #[test]
+    fn generate_projection_data_points_applies_growth_over_time() {
+        let today = Local::now().date_naive();
+        let next_month = if today.month() == 12 {
+            NaiveDate::from_ymd_opt(today.year() + 1, 2, 1).unwrap()
+        } else if today.month() == 11 {
+            NaiveDate::from_ymd_opt(today.year() + 1, 1, 1).unwrap()
+        } else {
+            NaiveDate::from_ymd_opt(today.year(), today.month() + 2, 1).unwrap()
+        };
+
+        let points = RetirementService::generate_projection_data_points(
+            100_000.0,
+            1_000.0,
+            0.12,
+            next_month,
+        );
+
+        assert!(points.len() >= 2);
+        assert!(points[1].projected_net_worth > points[0].projected_net_worth);
     }
 }

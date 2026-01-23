@@ -7,4 +7,5 @@ pub mod net_worth;
 pub mod onboarding;
 pub mod retirement;
 pub mod retirement_plan;
+pub mod retirement_plan_projection;
 pub mod user_settings;
