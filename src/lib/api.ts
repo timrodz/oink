@@ -189,12 +189,14 @@ export const api = {
     monthlyContribution: number,
     expectedMonthlyExpenses: number,
     returnScenario: ReturnScenario,
+    targetRetirementDate: string | null,
   ): Promise<RetirementProjection> => {
     return await invoke(COMMANDS.CALCULATE_RETIREMENT_PROJECTION, {
       startingNetWorth,
       monthlyContribution,
       expectedMonthlyExpenses,
       returnScenario,
+      targetRetirementDate,
     });
   },
 

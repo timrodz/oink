@@ -93,6 +93,7 @@ export function RetirementFormFeature() {
       monthlyContribution: parsedMonthlyContribution,
       expectedMonthlyExpenses: parsedExpectedMonthlyExpenses,
       returnScenario,
+      targetRetirementDate: targetRetirementDate || null,
     },
     { enabled: canCalculateProjection },
   );
@@ -249,7 +250,23 @@ export function RetirementFormFeature() {
       }).format(
         new Date(`${projectionQuery.data.projectedRetirementDate}T00:00:00`),
       )
-    : "Already achievable";
+    : projectionQuery.data
+      ? "Already achievable"
+      : "—";
+
+  const targetDateLabel = targetRetirementDate
+    ? new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(new Date(`${targetRetirementDate}T00:00:00`))
+    : null;
+  const projectionModeLabel = targetRetirementDate
+    ? "Target Date"
+    : "Earliest Possible";
+  const projectionModeHeader = targetRetirementDate
+    ? `Projections for ${targetDateLabel ?? "selected date"}`
+    : `Earliest Retirement: ${projectedDateLabel}`;
 
   const formatScenarioDate = (projectedRetirementDate: string | null) => {
     if (!projectedRetirementDate) {
@@ -481,6 +498,12 @@ export function RetirementFormFeature() {
           <CardDescription>
             Your retirement timeline and sustainable monthly income estimates.
           </CardDescription>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {projectionModeLabel}
+            </span>
+            <span>{projectionModeHeader}</span>
+          </div>
         </CardHeader>
         <CardContent>
           {projectionQuery.isLoading && (

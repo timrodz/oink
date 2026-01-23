@@ -9,6 +9,7 @@ export const RETIREMENT_KEYS = {
     monthlyContribution: number;
     expectedMonthlyExpenses: number;
     returnScenario: ReturnScenario;
+    targetRetirementDate: string | null;
   }) =>
     [
       ...RETIREMENT_KEYS.all,
@@ -17,6 +18,7 @@ export const RETIREMENT_KEYS = {
       inputs.monthlyContribution,
       inputs.expectedMonthlyExpenses,
       inputs.returnScenario,
+      inputs.targetRetirementDate,
     ] as const,
   scenarioProjection: (
     planId: string,
@@ -25,6 +27,7 @@ export const RETIREMENT_KEYS = {
       monthlyContribution: number;
       expectedMonthlyExpenses: number;
       returnScenario: ReturnScenario;
+      targetRetirementDate: string | null;
     },
   ) =>
     [
@@ -35,6 +38,7 @@ export const RETIREMENT_KEYS = {
       inputs.monthlyContribution,
       inputs.expectedMonthlyExpenses,
       inputs.returnScenario,
+      inputs.targetRetirementDate,
     ] as const,
   planProjections: (planId: string) =>
     [...RETIREMENT_KEYS.all, "plan-projections", planId] as const,
@@ -46,6 +50,7 @@ export function useRetirementProjection(
     monthlyContribution: number;
     expectedMonthlyExpenses: number;
     returnScenario: ReturnScenario;
+    targetRetirementDate: string | null;
   },
   options?: { enabled?: boolean },
 ) {
@@ -57,6 +62,7 @@ export function useRetirementProjection(
         inputs.monthlyContribution,
         inputs.expectedMonthlyExpenses,
         inputs.returnScenario,
+        inputs.targetRetirementDate,
       ),
     enabled: options?.enabled,
   });
@@ -72,6 +78,7 @@ export function useRetirementScenarioProjections(
         monthlyContribution: plan.monthlyContribution,
         expectedMonthlyExpenses: plan.expectedMonthlyExpenses,
         returnScenario: plan.returnScenario,
+        targetRetirementDate: plan.targetRetirementDate,
       }),
       queryFn: () =>
         api.calculateRetirementProjection(
@@ -79,6 +86,7 @@ export function useRetirementScenarioProjections(
           plan.monthlyContribution,
           plan.expectedMonthlyExpenses,
           plan.returnScenario,
+          plan.targetRetirementDate,
         ),
       enabled: Boolean(plans?.length),
     })),

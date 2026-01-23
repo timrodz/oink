@@ -7,6 +7,7 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
 - Main navigation uses the MainNav component with NavLink active styling.
 - Frontend Tauri commands are wrapped in React Query hooks under src/hooks with stable query keys.
 - Scenario comparison projections are fetched per plan via the useRetirementScenarioProjections hook.
+- Retirement projection queries include target retirement date in query keys to prevent stale cache results.
 
 ## 2026-01-23 00:14 NZDT - US-001
 - What was implemented
@@ -306,4 +307,19 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Patterns discovered: Chart helpers follow pattern of getData() for transforming data and getOptions() for chart configuration.
   - Gotchas encountered: The chart can only display saved plan projections since projection data points are stored in DB on plan create/update.
   - Useful context: Retirement projection chart aggregates monthly data to yearly by taking the last value for each year.
+---
+## 2026-01-23 23:24 NZDT - US-020
+- What was implemented
+  - Added target-date-aware projection queries and results header mode indicator for retirement projections.
+  - Wired target retirement date into projection calculations for scenarios and chart marker updates.
+- Files changed
+  - src/features/retirement/retirement-form-feature.tsx
+  - src/hooks/use-retirement.ts
+  - src/lib/api.ts
+  - scripts/ralph/prd.json
+  - scripts/ralph/progress.txt
+- **Learnings for future iterations:**
+  - Patterns discovered: Include target retirement date in projection query keys to keep cached results aligned.
+  - Gotchas encountered: None.
+  - Useful context: Projection mode labels are derived directly from the target date input state.
 ---
