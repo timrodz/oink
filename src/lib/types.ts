@@ -84,3 +84,12 @@ export interface RetirementProjection {
   monthlyIncome3pct: number;
   monthlyIncome4pct: number;
 }
+
+export interface RetirementPlanProjection {
+  id: string;
+  planId: string;
+  year: number;
+  month: number;
+  projectedNetWorth: number;
+  createdAt: string;
+}

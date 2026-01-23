@@ -268,7 +268,7 @@
         "Typecheck passes (pnpm run typecheck)"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {

@@ -260,3 +260,14 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: RetirementPlanProjectionService already had the get_by_plan_id method; just needed Tauri command wrapper.
 ---
+## 2026-01-23 23:15 NZDT - US-017
+- What was implemented
+  - Added RetirementPlanProjection TypeScript interface to src/lib/types.ts matching the Rust model.
+- Files changed
+  - src/lib/types.ts
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: TypeScript interfaces use camelCase field names matching Rust serde(rename_all = "camelCase").
+---
