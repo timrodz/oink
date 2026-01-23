@@ -94,7 +94,8 @@ pub fn run() {
             commands::get_retirement_plan,
             commands::update_retirement_plan,
             commands::delete_retirement_plan,
-            commands::calculate_retirement_projection
+            commands::calculate_retirement_projection,
+            commands::get_retirement_plan_projections
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,5 +1,6 @@
 use crate::models::{
-    Account, BalanceSheet, CurrencyRate, Entry, OnboardingStep, RetirementPlan, UserSettings,
+    Account, BalanceSheet, CurrencyRate, Entry, OnboardingStep, RetirementPlan,
+    RetirementPlanProjection, UserSettings,
 };
 use crate::services::account::AccountService;
 use crate::services::balance_sheet::BalanceSheetService;
@@ -346,4 +347,12 @@ pub async fn calculate_retirement_projection(
         expected_monthly_expenses,
         &return_scenario,
     )
+}
+
+#[tauri::command]
+pub async fn get_retirement_plan_projections(
+    state: State<'_, AppState>,
+    plan_id: String,
+) -> Result<Vec<RetirementPlanProjection>, String> {
+    RetirementPlanProjectionService::get_by_plan_id(&state.db, &plan_id).await
 }
