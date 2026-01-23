@@ -6,6 +6,8 @@ import {
   CurrencyRate,
   Entry,
   OnboardingStep,
+  RetirementProjection,
+  ReturnScenario,
   UserSettings,
 } from "./types";
 
@@ -151,6 +153,21 @@ export const api = {
   },
   getLatestNetWorth: async (): Promise<NetWorthDataPoint | null> => {
     return await invoke(COMMANDS.GET_LATEST_NET_WORTH);
+  },
+
+  // Retirement
+  calculateRetirementProjection: async (
+    startingNetWorth: number,
+    monthlyContribution: number,
+    expectedMonthlyExpenses: number,
+    returnScenario: ReturnScenario,
+  ): Promise<RetirementProjection> => {
+    return await invoke(COMMANDS.CALCULATE_RETIREMENT_PROJECTION, {
+      startingNetWorth,
+      monthlyContribution,
+      expectedMonthlyExpenses,
+      returnScenario,
+    });
   },
 
   // Onboarding

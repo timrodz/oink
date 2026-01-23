@@ -32,6 +32,9 @@ export const COMMANDS = {
   GET_NET_WORTH_HISTORY: "get_net_worth_history",
   GET_LATEST_NET_WORTH: "get_latest_net_worth",
 
+  // Retirement
+  CALCULATE_RETIREMENT_PROJECTION: "calculate_retirement_projection",
+
   // Onboarding
   GET_ONBOARDING_STATUS: "get_onboarding_status",
   COMPLETE_ONBOARDING_STEP: "complete_onboarding_step",

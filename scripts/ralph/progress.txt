@@ -5,6 +5,7 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
 - Migrations use TEXT ids with CURRENT_TIMESTAMP defaults for created/updated timestamps.
 - Services must be exported in src-tauri/src/services/mod.rs to be used elsewhere.
 - Main navigation uses the MainNav component with NavLink active styling.
+- Frontend Tauri commands are wrapped in React Query hooks under src/hooks with stable query keys.
 
 ## 2026-01-23 00:14 NZDT - US-001
 - What was implemented
@@ -142,4 +143,23 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Patterns discovered: None.
   - Gotchas encountered: None.
   - Useful context: Latest net worth is fetched via a dedicated TanStack query hook for retirement planning auto-fill.
+---
+## 2026-01-23 09:38 NZDT - US-010
+- What was implemented
+  - Added retirement projection query hook and results panel with income status highlighting.
+  - Added projection helpers/tests and wired calculation command into the frontend API.
+  - Documented the projection UI helpers in the README.
+- Files changed
+  - src/features/retirement/retirement-form-feature.tsx
+  - src/features/retirement/lib/projection.ts
+  - src/features/retirement/lib/projection.test.ts
+  - src/hooks/use-retirement.ts
+  - src/lib/api.ts
+  - src/lib/commands.ts
+  - README.md
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: Projection results are powered by a dedicated React Query hook (`use-retirement`) tied to the calculate_retirement_projection command.
+  - Gotchas encountered: None.
+  - Useful context: Projection status highlighting compares sustainable income against expected monthly expenses.
 ---
