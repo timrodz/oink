@@ -34,19 +34,6 @@ cargo test
 - [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode)
 - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 
-## Backend notes
-
-- Retirement planner calculations live in `src-tauri/src/services/retirement.rs` and are exposed via the `calculate_retirement_projection` Tauri command.
-
-## Frontend notes
-
-- Retirement planner TypeScript types live in `src/lib/types.ts` for UI and Tauri payloads.
-- Retirement planner form UI lives in `src/features/retirement/retirement-form-feature.tsx` with shared validation in `src/features/retirement/lib/validation.ts`.
-- Retirement projection UI uses `src/hooks/use-retirement.ts` with projection helpers in `src/features/retirement/lib/projection.ts`.
-- Retirement scenario saving uses `src/hooks/use-retirement-plans.ts` and helpers in `src/features/retirement/lib/scenarios.ts`.
-- Retirement scenario comparison tags are computed in `src/features/retirement/lib/scenario-comparison.ts` and rendered in the retirement form table.
-- Retirement planner error/edge states (missing net worth data, projection failures) are handled in `src/features/retirement/retirement-form-feature.tsx`.
-
 ## Progress screenshots
 
 ### 20/01/2026
