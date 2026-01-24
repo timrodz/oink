@@ -6,6 +6,10 @@ import {
   CurrencyRate,
   Entry,
   OnboardingStep,
+  RetirementPlan,
+  RetirementPlanProjection,
+  RetirementProjection,
+  ReturnScenario,
   UserSettings,
 } from "./types";
 
@@ -19,7 +23,14 @@ export interface NetWorthDataPoint {
 }
 
 // Re-export types for consumers
-export type { Account, BalanceSheet, CurrencyRate, Entry, UserSettings };
+export type {
+  Account,
+  BalanceSheet,
+  CurrencyRate,
+  Entry,
+  RetirementPlan,
+  UserSettings,
+};
 
 // API Adapter
 export const api = {
@@ -148,6 +159,54 @@ export const api = {
   // Net Worth
   getNetWorthHistory: async (): Promise<NetWorthDataPoint[]> => {
     return await invoke(COMMANDS.GET_NET_WORTH_HISTORY);
+  },
+  getLatestNetWorth: async (): Promise<NetWorthDataPoint | null> => {
+    return await invoke(COMMANDS.GET_LATEST_NET_WORTH);
+  },
+
+  // Retirement
+  getRetirementPlans: async (): Promise<RetirementPlan[]> => {
+    return await invoke(COMMANDS.GET_RETIREMENT_PLANS);
+  },
+
+  createRetirementPlan: async (input: {
+    name: string;
+    targetRetirementYear: number | null;
+    startingNetWorth: number;
+    monthlyContribution: number;
+    expectedMonthlyExpenses: number;
+    returnScenario: ReturnScenario;
+    inflationRate: number;
+  }): Promise<RetirementPlan> => {
+    return await invoke(COMMANDS.CREATE_RETIREMENT_PLAN, input);
+  },
+
+  deleteRetirementPlan: async (id: string): Promise<void> => {
+    await invoke(COMMANDS.DELETE_RETIREMENT_PLAN, { id });
+  },
+
+  calculateRetirementProjection: async (
+    startingNetWorth: number,
+    monthlyContribution: number,
+    expectedMonthlyExpenses: number,
+    returnScenario: ReturnScenario,
+    inflationRate: number,
+    targetRetirementYear: number | undefined,
+  ): Promise<RetirementProjection> => {
+    return await invoke(COMMANDS.CALCULATE_RETIREMENT_PROJECTION, {
+      startingNetWorth,
+      monthlyContribution,
+      expectedMonthlyExpenses,
+      returnScenario,
+      targetRetirementYear,
+      inflationRate,
+    });
+  },
+
+  getRetirementPlanProjections: async (
+    planId: string,
+  ): Promise<RetirementPlanProjection[]> => {
+    return await invoke(COMMANDS.GET_RETIREMENT_PLAN_PROJECTIONS, { planId });
   },
 
   // Onboarding

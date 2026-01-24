@@ -3,7 +3,6 @@ use std::fs;
 use tauri::Manager;
 
 mod commands;
-pub mod constants;
 mod models;
 mod services;
 
@@ -86,8 +85,16 @@ pub fn run() {
             commands::upsert_currency_rate,
             commands::delete_currency_rate,
             commands::get_net_worth_history,
+            commands::get_latest_net_worth,
             commands::get_onboarding_status,
-            commands::complete_onboarding_step
+            commands::complete_onboarding_step,
+            commands::create_retirement_plan,
+            commands::get_retirement_plans,
+            commands::get_retirement_plan,
+            commands::update_retirement_plan,
+            commands::delete_retirement_plan,
+            commands::calculate_retirement_projection,
+            commands::get_retirement_plan_projections
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

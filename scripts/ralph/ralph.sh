@@ -1,6 +1,6 @@
 #!/bin/bash
 # Ralph Wiggum - Long-running AI agent loop
-# Usage: ./ralph.sh [--tool amp|codex|cursor|claude] [max_iterations]
+# Usage: ./ralph.sh [--tool amp|codex|cursor|claude|gemini] [max_iterations]
 
 set -e
 
@@ -29,8 +29,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate tool choice
-if [[ "$TOOL" != "amp" && "$TOOL" != "claude" && "$TOOL" != "codex" && "$TOOL" != "cursor" ]]; then
-  echo "Error: Invalid tool '$TOOL'. Must be 'amp', 'claude', 'codex', or 'cursor'."
+if [[ "$TOOL" != "amp" && "$TOOL" != "claude" && "$TOOL" != "codex" && "$TOOL" != "cursor" && "$TOOL" != "gemini" ]]; then
+  echo "Error: Invalid tool '$TOOL'. Must be 'amp', 'claude', 'codex', 'cursor', or 'gemini'."
   exit 1
 fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -91,9 +91,11 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   if [[ "$TOOL" == "amp" ]]; then
     OUTPUT=$(cat "$SCRIPT_DIR/prompt-amp.md" | amp --dangerously-allow-all 2>&1) || true
   elif [[ "$TOOL" == "codex" ]]; then
-    OUTPUT=$(codex exec --yolo - "$SCRIPT_DIR/prompt.md" 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | codex exec --yolo 2>&1 | tee /dev/stderr) || true
   elif [[ "$TOOL" == "cursor" ]]; then
     OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | cursor agent --force --print 2>&1 | tee /dev/stderr) || true
+  elif [[ "$TOOL" == "gemini" ]]; then
+    OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | gemini --yolo 2>&1 | tee /dev/stderr) || true
   else
     # Claude Code: use --dangerously-skip-permissions for autonomous operation, --print for output
     OUTPUT=$(claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/CLAUDE.md" 2>&1 | tee /dev/stderr) || true

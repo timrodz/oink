@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.eslintcache
 
 # Editor directories and files
 .vscode/*
@@ -26,6 +27,7 @@ dist-ssr
 .env
 
 # Ralph working files (generated during runs)
+tasks/
 prd.json
 progress.txt
 .last-branch
