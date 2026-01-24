@@ -171,7 +171,7 @@ export const api = {
 
   createRetirementPlan: async (input: {
     name: string;
-    targetRetirementDate: string | null;
+    targetRetirementYear: number | null;
     startingNetWorth: number;
     monthlyContribution: number;
     expectedMonthlyExpenses: number;
@@ -190,15 +190,15 @@ export const api = {
     monthlyContribution: number,
     expectedMonthlyExpenses: number,
     returnScenario: ReturnScenario,
-    targetRetirementDate: string | null,
     inflationRate: number,
+    targetRetirementYear: number | undefined,
   ): Promise<RetirementProjection> => {
     return await invoke(COMMANDS.CALCULATE_RETIREMENT_PROJECTION, {
       startingNetWorth,
       monthlyContribution,
       expectedMonthlyExpenses,
       returnScenario,
-      targetRetirementDate,
+      targetRetirementYear,
       inflationRate,
     });
   },

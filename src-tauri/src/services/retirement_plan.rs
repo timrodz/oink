@@ -9,7 +9,7 @@ impl RetirementPlanService {
     pub async fn create(
         pool: &SqlitePool,
         name: String,
-        target_retirement_date: Option<NaiveDate>,
+        target_retirement_year: Option<i32>,
         starting_net_worth: f64,
         monthly_contribution: f64,
         expected_monthly_expenses: f64,
@@ -18,6 +18,10 @@ impl RetirementPlanService {
     ) -> Result<RetirementPlan, String> {
         let new_id = Uuid::new_v4().to_string();
         let now = chrono::Utc::now();
+        let target_retirement_date = match target_retirement_year {
+            Some(year) => NaiveDate::from_ymd_opt(year, 1, 1),
+            None => None,
+        };
 
         sqlx::query_as::<_, RetirementPlan>(
             "INSERT INTO retirement_plans (id, name, target_retirement_date, starting_net_worth, monthly_contribution, expected_monthly_expenses, return_scenario, inflation_rate, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *",
@@ -39,7 +43,7 @@ impl RetirementPlanService {
 
     pub async fn get_all(pool: &SqlitePool) -> Result<Vec<RetirementPlan>, String> {
         sqlx::query_as::<_, RetirementPlan>(
-            "SELECT * FROM retirement_plans ORDER BY updated_at DESC LIMIT 3",
+            "SELECT * FROM retirement_plans ORDER BY updated_at DESC",
         )
         .fetch_all(pool)
         .await

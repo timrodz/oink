@@ -20,7 +20,7 @@ This file serves as the primary context for AI agents working on this project.
 - **Framework:** React 19 + TypeScript + Vite
 - **UI Library:** shadcn/ui (Radix Primitives + Tailwind CSS)
 - **Styling:** Tailwind CSS v4
-- **State/Data Fetching:** React Hooks + Custom Query wrappers around Tauri commands (`src/lib/queries.ts`)
+- **State/Data Fetching:** React Hooks + Custom Query wrappers around Tauri commands (`src/hooks.ts`)
 - **Routing:** React Router v7
 
 ### Backend (Tauri)
@@ -45,7 +45,7 @@ This file serves as the primary context for AI agents working on this project.
 - **Styling:** Use Tailwind utility classes. For complex components, leverage `shadcn/ui`.
 - **State Management:**
   - Local state: `useState`, `useReducer`.
-  - Server state: Custom hooks in `src/lib/queries.ts`.
+  - Server state: Custom hooks in `src/hooks.ts`.
 - **API Communication:**
   - **Frontend:** All Tauri `invoke` calls must be wrapped in `src/lib/api.ts`.
   - **Backend:** Commands return `Result<T, String>` (or custom error types) and are defined in `src-tauri/src/commands.rs`.

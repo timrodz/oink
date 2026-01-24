@@ -9,7 +9,7 @@ export const RETIREMENT_PLAN_KEYS = {
 
 export interface RetirementPlanInput {
   name: string;
-  targetRetirementDate: string | null;
+  targetRetirementYear: number | null;
   startingNetWorth: number;
   monthlyContribution: number;
   expectedMonthlyExpenses: number;

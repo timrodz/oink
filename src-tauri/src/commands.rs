@@ -214,7 +214,7 @@ pub async fn complete_onboarding_step(
 pub async fn create_retirement_plan(
     state: State<'_, AppState>,
     name: String,
-    target_retirement_date: Option<NaiveDate>,
+    target_retirement_year: Option<i32>,
     starting_net_worth: f64,
     monthly_contribution: f64,
     expected_monthly_expenses: f64,
@@ -224,7 +224,7 @@ pub async fn create_retirement_plan(
     let plan = RetirementPlanService::create(
         &state.db,
         name,
-        target_retirement_date,
+        target_retirement_year,
         starting_net_worth,
         monthly_contribution,
         expected_monthly_expenses,
@@ -235,8 +235,8 @@ pub async fn create_retirement_plan(
 
     let annual_return_rate = RetirementService::annual_return_rate(&return_scenario)?;
 
-    let retirement_date = match target_retirement_date {
-        Some(date) => date,
+    let retirement_date = match target_retirement_year {
+        Some(year) => NaiveDate::from_ymd_opt(year, 1, 1).unwrap(),
         None => {
             let years = RetirementService::years_to_retirement_with_inflation(
                 starting_net_worth,
@@ -346,7 +346,7 @@ pub async fn calculate_retirement_projection(
     monthly_contribution: f64,
     expected_monthly_expenses: f64,
     return_scenario: String,
-    target_retirement_date: Option<chrono::NaiveDate>,
+    target_retirement_year: Option<i32>,
     inflation_rate: Option<f64>,
 ) -> Result<RetirementProjection, String> {
     RetirementService::calculate_projection(
@@ -354,7 +354,7 @@ pub async fn calculate_retirement_projection(
         monthly_contribution,
         expected_monthly_expenses,
         &return_scenario,
-        target_retirement_date,
+        target_retirement_year,
         inflation_rate.unwrap_or(0.0),
     )
 }

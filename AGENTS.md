@@ -18,7 +18,7 @@ There is no cloud storage enabled for this application; it's expected that user 
 
 ## Development practices
 
-Add or update unit tests for every piece of code
+- Add or update unit tests for every piece of code even if not asked
 
 ### Backend
 

@@ -1,8 +1,8 @@
 import { OnboardingFeature } from "@/features/onboarding/onboarding-feature";
 import { useOnboarding } from "@/hooks/use-onboarding";
-import { BalanceSheetPage } from "@/pages/BalanceSheetPage";
-import { HomePage } from "@/pages/HomePage";
-import { RetirementPage } from "@/pages/Retirement";
+import { BalanceSheetPage } from "@/pages/balance-sheet-page";
+import { HomePage } from "@/pages/home-page";
+import { RetirementPage } from "@/pages/retirement-page";
 import { useMemo } from "react";
 import {
   Navigate,

@@ -1,4 +1,4 @@
-export const SCENARIO_LIMIT = 3;
+export const SCENARIO_LIMIT = 10;
 
 export function isScenarioLimitReached(
   planCount: number,

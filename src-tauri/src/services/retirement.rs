@@ -38,7 +38,7 @@ impl RetirementService {
         inflation_rate: f64,
         years: f64,
     ) -> f64 {
-        if expected_monthly_expenses <= 0.0 || inflation_rate <= 0.0 || years <= 0.0 {
+        if expected_monthly_expenses <= 0.0 || inflation_rate == 0.0 || years <= 0.0 {
             return expected_monthly_expenses;
         }
 
@@ -154,7 +154,7 @@ impl RetirementService {
     ) -> Option<f64> {
         let base_target = Self::target_net_worth(expected_monthly_expenses, withdrawal_rate)?;
 
-        if inflation_rate <= 0.0 {
+        if inflation_rate == 0.0 {
             return Self::years_to_target_net_worth(
                 starting_net_worth,
                 monthly_contribution,
@@ -215,11 +215,15 @@ impl RetirementService {
         monthly_contribution: f64,
         expected_monthly_expenses: f64,
         return_scenario: &str,
-        target_retirement_date: Option<NaiveDate>,
+        target_retirement_year: Option<i32>,
         inflation_rate: f64,
     ) -> Result<RetirementProjection, String> {
         let annual_return_rate = Self::annual_return_rate(return_scenario)?;
         let today = Local::now().date_naive();
+        let target_retirement_date = match target_retirement_year {
+            Some(year) => NaiveDate::from_ymd_opt(year, 1, 1),
+            None => None,
+        };
 
         // If target date is set, use it; otherwise calculate earliest possible retirement date
         let (years_to_retirement, projected_retirement_date) = match target_retirement_date {
@@ -482,7 +486,7 @@ mod tests {
             1_000.0,
             3_000.0,
             RETURN_SCENARIO_MODERATE,
-            Some(target_date),
+            Some(target_date.year()),
             0.0,
         )
         .expect("projection");
@@ -502,7 +506,7 @@ mod tests {
             1_000.0,
             3_000.0,
             RETURN_SCENARIO_MODERATE,
-            Some(past_date),
+            Some(past_date.year()),
             0.0,
         )
         .expect("projection");
@@ -525,7 +529,7 @@ mod tests {
             100.0,
             3_000.0,
             RETURN_SCENARIO_AGGRESSIVE,
-            Some(target_date),
+            Some(target_date.year()),
             0.0,
         )
         .expect("projection");

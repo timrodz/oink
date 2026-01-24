@@ -1,5 +1,10 @@
 import { api } from "@/lib/api";
-import { RetirementPlan, RetirementPlanProjection, ReturnScenario } from "@/lib/types";
+import { getRetirementYearFromDateString } from "@/lib/dates";
+import {
+  RetirementPlan,
+  RetirementPlanProjection,
+  ReturnScenario,
+} from "@/lib/types";
 import { useQueries, useQuery } from "@tanstack/react-query";
 
 export const RETIREMENT_KEYS = {
@@ -9,7 +14,7 @@ export const RETIREMENT_KEYS = {
     monthlyContribution: number;
     expectedMonthlyExpenses: number;
     returnScenario: ReturnScenario;
-    targetRetirementDate: string | null;
+    targetRetirementYear: number | undefined;
     inflationRate: number;
   }) =>
     [
@@ -19,7 +24,7 @@ export const RETIREMENT_KEYS = {
       inputs.monthlyContribution,
       inputs.expectedMonthlyExpenses,
       inputs.returnScenario,
-      inputs.targetRetirementDate,
+      inputs.targetRetirementYear,
       inputs.inflationRate,
     ] as const,
   scenarioProjection: (
@@ -29,7 +34,7 @@ export const RETIREMENT_KEYS = {
       monthlyContribution: number;
       expectedMonthlyExpenses: number;
       returnScenario: ReturnScenario;
-      targetRetirementDate: string | null;
+      targetRetirementYear: number | undefined;
       inflationRate: number;
     },
   ) =>
@@ -41,7 +46,7 @@ export const RETIREMENT_KEYS = {
       inputs.monthlyContribution,
       inputs.expectedMonthlyExpenses,
       inputs.returnScenario,
-      inputs.targetRetirementDate,
+      inputs.targetRetirementYear,
       inputs.inflationRate,
     ] as const,
   planProjections: (planId: string) =>
@@ -54,21 +59,28 @@ export function useRetirementProjection(
     monthlyContribution: number;
     expectedMonthlyExpenses: number;
     returnScenario: ReturnScenario;
-    targetRetirementDate: string | null;
+    targetRetirementYear: number | undefined;
     inflationRate: number;
   },
   options?: { enabled?: boolean },
 ) {
   return useQuery({
-    queryKey: RETIREMENT_KEYS.projection(inputs),
+    queryKey: RETIREMENT_KEYS.projection({
+      startingNetWorth: inputs.startingNetWorth,
+      monthlyContribution: inputs.monthlyContribution,
+      expectedMonthlyExpenses: inputs.expectedMonthlyExpenses,
+      returnScenario: inputs.returnScenario,
+      targetRetirementYear: inputs.targetRetirementYear,
+      inflationRate: inputs.inflationRate,
+    }),
     queryFn: () =>
       api.calculateRetirementProjection(
         inputs.startingNetWorth,
         inputs.monthlyContribution,
         inputs.expectedMonthlyExpenses,
         inputs.returnScenario,
-        inputs.targetRetirementDate,
         inputs.inflationRate,
+        inputs.targetRetirementYear,
       ),
     enabled: options?.enabled,
   });
@@ -78,26 +90,31 @@ export function useRetirementScenarioProjections(
   plans: RetirementPlan[] | undefined,
 ) {
   return useQueries({
-    queries: (plans ?? []).map((plan) => ({
-      queryKey: RETIREMENT_KEYS.scenarioProjection(plan.id, {
-        startingNetWorth: plan.startingNetWorth,
-        monthlyContribution: plan.monthlyContribution,
-        expectedMonthlyExpenses: plan.expectedMonthlyExpenses,
-        returnScenario: plan.returnScenario,
-        targetRetirementDate: plan.targetRetirementDate,
-        inflationRate: plan.inflationRate,
-      }),
-      queryFn: () =>
-        api.calculateRetirementProjection(
-          plan.startingNetWorth,
-          plan.monthlyContribution,
-          plan.expectedMonthlyExpenses,
-          plan.returnScenario,
-          plan.targetRetirementDate,
-          plan.inflationRate,
-        ),
-      enabled: Boolean(plans?.length),
-    })),
+    queries: (plans ?? []).map((plan) => {
+      const targetRetirementYear = getRetirementYearFromDateString(
+        plan.targetRetirementDate,
+      );
+      return {
+        queryKey: RETIREMENT_KEYS.scenarioProjection(plan.id, {
+          startingNetWorth: plan.startingNetWorth,
+          monthlyContribution: plan.monthlyContribution,
+          expectedMonthlyExpenses: plan.expectedMonthlyExpenses,
+          returnScenario: plan.returnScenario,
+          targetRetirementYear,
+          inflationRate: plan.inflationRate,
+        }),
+        queryFn: () =>
+          api.calculateRetirementProjection(
+            plan.startingNetWorth,
+            plan.monthlyContribution,
+            plan.expectedMonthlyExpenses,
+            plan.returnScenario,
+            plan.inflationRate,
+            targetRetirementYear,
+          ),
+        enabled: Boolean(plans?.length),
+      };
+    }),
   });
 }
 

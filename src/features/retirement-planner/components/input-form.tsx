@@ -1,0 +1,403 @@
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getScenarioLimitMessage,
+  isScenarioLimitReached,
+} from "@/features/retirement-planner/lib/scenarios";
+import { useLatestNetWorth } from "@/hooks/use-net-worth";
+import { useRetirementPlans } from "@/hooks/use-retirement-plans";
+import { RetirementPlan } from "@/lib/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RefreshCwIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod/v3";
+
+const formSchema = z.object({
+  planName: z
+    .string()
+    .min(1, "Plan name is required.")
+    .max(50, "Plan name must be at most 50 characters."),
+  targetRetirementYear: z.coerce.number().min(2026).optional(),
+  startingNetWorth: z.coerce
+    .number()
+    .positive("Starting net worth must be greater than 0."),
+  monthlyContribution: z.coerce
+    .number()
+    .positive("Monthly contribution must be greater than 0."),
+  expectedMonthlyExpenses: z.coerce
+    .number()
+    .positive("Expected monthly expenses must be greater than 0."),
+  inflationRate: z.coerce
+    .number()
+    .min(0)
+    .max(15, "Inflation rate must be 0-15%."),
+  returnScenario: z.enum(["conservative", "moderate", "aggressive"]),
+});
+
+export type RetirementInputFormValues = z.infer<typeof formSchema>;
+
+interface InputFormProps {
+  homeCurrency: string;
+  onProjectionValuesChange: (values: RetirementInputFormValues | null) => void;
+  loadPlan: RetirementPlan | null;
+}
+
+export function InputForm({
+  homeCurrency,
+  onProjectionValuesChange,
+  loadPlan,
+}: InputFormProps) {
+  const { data: latestNetWorth, isLoading: latestNetWorthLoading } =
+    useLatestNetWorth();
+
+  const {
+    data: savedPlans,
+    isLoading: savedPlansLoading,
+    createPlan,
+  } = useRetirementPlans();
+
+  const [saveNotice, setSaveNotice] = useState<{
+    type: "success" | "error" | "limit";
+    message: string;
+  } | null>(null);
+
+  const scenarioCount = savedPlans?.length ?? 0;
+  const scenarioLimitReached = isScenarioLimitReached(scenarioCount);
+  const scenarioLimitMessage = getScenarioLimitMessage(scenarioCount);
+  const saveDisabled =
+    createPlan.isPending || savedPlansLoading || scenarioLimitReached;
+
+  const form = useForm<RetirementInputFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      planName: "",
+      targetRetirementYear: 2026,
+      startingNetWorth: 0,
+      monthlyContribution: 0,
+      expectedMonthlyExpenses: 0,
+      inflationRate: 2,
+      returnScenario: "moderate",
+    },
+    mode: "onChange",
+  });
+
+  // Pre-fill starting net worth from latest snapshot
+  useEffect(() => {
+    if (!latestNetWorth?.netWorth) {
+      return;
+    }
+    form.setValue("startingNetWorth", latestNetWorth.netWorth, {
+      shouldValidate: true,
+    });
+  }, [latestNetWorth, form]);
+
+  // Load plan into form
+  useEffect(() => {
+    if (!loadPlan) {
+      return;
+    }
+    const targetRetirementYear = loadPlan.targetRetirementDate
+      ? new Date(loadPlan.targetRetirementDate).getFullYear()
+      : undefined;
+    const values = {
+      planName: loadPlan.name,
+      targetRetirementYear,
+      startingNetWorth: loadPlan.startingNetWorth,
+      monthlyContribution: loadPlan.monthlyContribution,
+      expectedMonthlyExpenses: loadPlan.expectedMonthlyExpenses,
+      inflationRate: loadPlan.inflationRate * 100,
+      returnScenario: loadPlan.returnScenario,
+    };
+    form.reset(values);
+    onProjectionValuesChange(values);
+    setSaveNotice(null);
+  }, [loadPlan, form]);
+
+  const handleSubmit = () => {
+    const values = form.getValues();
+    onProjectionValuesChange({
+      ...values,
+      inflationRate: values.inflationRate / 100,
+    });
+  };
+
+  const handleSavePlan = async () => {
+    if (scenarioLimitReached) {
+      setSaveNotice({
+        type: "limit",
+        message: scenarioLimitMessage ?? "Scenario limit reached.",
+      });
+      return;
+    }
+
+    const isValid = await form.trigger();
+    if (!isValid) {
+      return;
+    }
+
+    setSaveNotice(null);
+    const values = form.getValues();
+
+    try {
+      await createPlan.mutateAsync({
+        name: values.planName.trim(),
+        targetRetirementYear: values.targetRetirementYear ?? null,
+        startingNetWorth: values.startingNetWorth,
+        monthlyContribution: values.monthlyContribution,
+        expectedMonthlyExpenses: values.expectedMonthlyExpenses,
+        returnScenario: values.returnScenario,
+        inflationRate: values.inflationRate / 100,
+      });
+      setSaveNotice({
+        type: "success",
+        message: "Scenario saved successfully.",
+      });
+    } catch (error) {
+      setSaveNotice({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Unable to save the scenario right now.",
+      });
+    }
+  };
+
+  return (
+    <Card className="shadow-sm">
+      <CardHeader className="space-y-2">
+        <CardTitle className="text-xl">Build your retirement plan</CardTitle>
+        <CardDescription>
+          Enter your savings assumptions to preview how quickly you can reach
+          your retirement goal.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Controller
+              name="planName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-plan-name">
+                    Plan name
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-rhf-plan-name"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="My first plan..."
+                    autoCapitalize="on"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="targetRetirementYear"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-target-retirement-year">
+                    Target year
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    {...form.register("targetRetirementYear", {
+                      valueAsNumber: true,
+                    })}
+                    id="form-rhf-target-retirement-year"
+                    type="number"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <Controller
+              name="startingNetWorth"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-starting-net-worth">
+                    Starting net worth
+                    {latestNetWorthLoading && (
+                      <RefreshCwIcon className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                    )}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    {...form.register("startingNetWorth", {
+                      valueAsNumber: true,
+                    })}
+                    id="form-rhf-starting-net-worth"
+                    type="number"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="monthlyContribution"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-monthly-contributions">
+                    Monthly contributions in {homeCurrency}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    {...form.register("monthlyContribution", {
+                      valueAsNumber: true,
+                    })}
+                    id="form-rhf-monthly-contributions"
+                    type="number"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="$1,000.00"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="expectedMonthlyExpenses"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-expected-monthly-expenses">
+                    Expected monthly expenses in {homeCurrency}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    {...form.register("expectedMonthlyExpenses", {
+                      valueAsNumber: true,
+                    })}
+                    id="form-rhf-expected-monthly-expenses"
+                    type="number"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="$2,000.00"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Controller
+              name="returnScenario"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Investments return scenario</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select scenario" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="conservative">
+                        Conservative (4%)
+                      </SelectItem>
+                      <SelectItem value="moderate">Moderate (7%)</SelectItem>
+                      <SelectItem value="aggressive">
+                        Aggressive (10%)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="inflationRate"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-inflation-rate">
+                    Inflation rate %
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    {...form.register("inflationRate", { valueAsNumber: true })}
+                    id="form-rhf-inflation-rate"
+                    type="number"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="2%"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Use 0% to ignore inflation.
+                  </p>
+                </Field>
+              )}
+            />
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <Button type="submit" className="w-full">
+              Generate projection
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              onClick={handleSavePlan}
+              disabled={saveDisabled}
+            >
+              {createPlan.isPending ? "Saving plan..." : "Save plan"}
+            </Button>
+          </div>
+          {scenarioLimitReached && scenarioLimitMessage && (
+            <p className="text-xs text-amber-600">{scenarioLimitMessage}</p>
+          )}
+          {saveNotice && (
+            <p
+              className={`text-xs ${
+                saveNotice.type === "success"
+                  ? "text-emerald-600"
+                  : saveNotice.type === "error"
+                    ? "text-destructive"
+                    : "text-amber-600"
+              }`}
+            >
+              {saveNotice.message}
+            </p>
+          )}
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
