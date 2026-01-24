@@ -21,3 +21,5 @@ export const ONE_YEAR_IN_MONTHS = 12;
 export const PRIVACY_MODE_VALUE = "***";
 
 export const THEME_STORAGE_KEY = "vite-ui-theme";
+
+export const RETIREMENT_PLAN_PROJECTION_BUFFER_DOLLARS = 50;

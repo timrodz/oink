@@ -3,7 +3,6 @@ use std::fs;
 use tauri::Manager;
 
 mod commands;
-pub mod constants;
 mod models;
 mod services;
 

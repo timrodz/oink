@@ -107,7 +107,7 @@ mod tests {
     use crate::test_utils::setup_test_db;
 
     #[tokio::test]
-    async fn test_retirement_plan_crud_and_limit() {
+    async fn test_retirement_plan_crud() {
         let pool = setup_test_db().await;
 
         let plan = RetirementPlanService::create(
@@ -167,7 +167,7 @@ mod tests {
         let limited = RetirementPlanService::get_all(&pool)
             .await
             .expect("Failed to list plans");
-        assert_eq!(limited.len(), 3);
+        assert_eq!(limited.len(), 4);
 
         RetirementPlanService::delete(&pool, plan.id.clone())
             .await

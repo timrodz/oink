@@ -1,3 +1,5 @@
+import { RETIREMENT_PLAN_PROJECTION_BUFFER_DOLLARS } from "@/lib/constants";
+
 export type ProjectionStatus = "onTrack" | "shortfall";
 export type ProjectionErrorKind = "notAchievable" | "unknown";
 
@@ -5,7 +7,10 @@ export function getProjectionStatus(
   monthlyIncome: number,
   expectedMonthlyExpenses: number,
 ): ProjectionStatus {
-  if (monthlyIncome >= expectedMonthlyExpenses) {
+  // Add a small buffer to let users know even if they're not super close, they can reach their target
+  const monthlyIncomePlusBuffer =
+    monthlyIncome + RETIREMENT_PLAN_PROJECTION_BUFFER_DOLLARS;
+  if (monthlyIncomePlusBuffer >= expectedMonthlyExpenses) {
     return "onTrack";
   }
 

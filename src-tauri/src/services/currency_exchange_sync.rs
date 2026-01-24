@@ -1,4 +1,3 @@
-use crate::constants;
 use crate::services::balance_sheet::BalanceSheetService;
 use crate::services::currency_rate::CurrencyRateService;
 use crate::services::user_settings::UserSettingsService;
@@ -8,6 +7,10 @@ use reqwest::Client;
 use serde::Deserialize;
 use sqlx::SqlitePool;
 use std::collections::{HashMap, HashSet};
+
+pub const FRANKFURTER_BASE_URL: &str = "https://api.frankfurter.dev/v1";
+pub const FRANKFURTER_DATE_FORMAT: &str = "%Y-%m-%d";
+pub const DECEMBER: u32 = 12;
 
 #[derive(Deserialize, Debug)]
 struct FrankfurterResponse {
@@ -107,7 +110,7 @@ impl SyncService {
         let start_date = format!("{earliest_year}-01-01");
         let end_date = format!("{}", today.format("%Y-%m-%d"));
 
-        let base_url = base_url.unwrap_or(constants::FRANKFURTER_BASE_URL.to_string());
+        let base_url = base_url.unwrap_or(FRANKFURTER_BASE_URL.to_string());
         let query_url = Self::get_query_url(
             &base_url,
             &start_date,
@@ -162,7 +165,7 @@ impl SyncService {
         // Upsert
         for ((year, month), rates_obj) in monthly_rates {
             // Finalization check
-            let last_day = if month == crate::constants::DECEMBER {
+            let last_day = if month == DECEMBER {
                 NaiveDate::from_ymd_opt(year + 1, 1, 1)
                     .unwrap()
                     .pred_opt()
@@ -228,9 +231,7 @@ impl SyncService {
         let mut monthly_rates: HashMap<(i32, u32), HashMap<String, f64>> = HashMap::new();
 
         for (date_str, rates_obj) in rates {
-            if let Ok(date) =
-                NaiveDate::parse_from_str(&date_str, crate::constants::FRANKFURTER_DATE_FORMAT)
-            {
+            if let Ok(date) = NaiveDate::parse_from_str(&date_str, FRANKFURTER_DATE_FORMAT) {
                 let year = date.year();
                 let month = date.month();
                 let key = (year, month);

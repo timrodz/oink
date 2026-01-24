@@ -60,10 +60,6 @@ export function RetirementPlannerFeature() {
     }
   }, [savedPlans, chartPlanId, loadedPlanId]);
 
-  if (!homeCurrency) {
-    return null;
-  }
-
   // Handlers
   const handleLoadPlan = (plan: RetirementPlan) => {
     setLoadedPlanId(plan.id);
@@ -122,6 +118,10 @@ export function RetirementPlannerFeature() {
     projectionErrorKind === "notAchievable"
       ? "text-amber-600"
       : "text-destructive";
+
+  if (!homeCurrency) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-12">
