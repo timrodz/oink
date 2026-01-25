@@ -53,7 +53,7 @@ export function getSubCategoriesByAccountType(
     : LIABILITY_SUB_CATEGORIES;
 }
 
-export function getSubCategoryLabel(key: SubCategory | null): string | null {
+export function getSubCategoryLabel(key: string | null): string | null {
   if (!key) return null;
   const option = ALL_SUB_CATEGORIES.find((sc) => sc.key === key);
   return option?.label ?? null;

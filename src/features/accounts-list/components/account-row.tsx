@@ -21,6 +21,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { Account } from "@/lib/api";
+import { getSubCategoryLabel } from "@/lib/constants/sub-categories";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -99,6 +100,13 @@ export function AccountRow({
         >
           {account.accountType}
         </span>
+      </TableCell>
+      <TableCell>
+        {account.subCategory && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+            {getSubCategoryLabel(account.subCategory)}
+          </span>
+        )}
       </TableCell>
       <TableCell>{account.currency}</TableCell>
       <TableCell className="text-right">
