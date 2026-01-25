@@ -33,7 +33,11 @@ export const LIABILITY_SUB_CATEGORIES: SubCategoryOption[] = [
   { key: "credit_cards", label: "Credit Cards", accountType: "Liability" },
   { key: "loans", label: "Loans", accountType: "Liability" },
   { key: "mortgages", label: "Mortgages", accountType: "Liability" },
-  { key: "other_liability", label: "Other Liability", accountType: "Liability" },
+  {
+    key: "other_liability",
+    label: "Other Liability",
+    accountType: "Liability",
+  },
 ] as const;
 
 export const ALL_SUB_CATEGORIES: SubCategoryOption[] = [
