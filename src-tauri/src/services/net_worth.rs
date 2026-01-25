@@ -165,10 +165,16 @@ mod tests {
 
         // 2. Setup Accounts
         // Asset A: USD (Native)
-        let asset_usd =
-            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into(), None)
-                .await
-                .expect("asset usd");
+        let asset_usd = AccountService::upsert(
+            &pool,
+            None,
+            "Cash".into(),
+            "Asset".into(),
+            "USD".into(),
+            None,
+        )
+        .await
+        .expect("asset usd");
         // Asset B: EUR (Foreign)
         let asset_eur = AccountService::upsert(
             &pool,
@@ -181,10 +187,16 @@ mod tests {
         .await
         .expect("asset eur");
         // Liability: USD
-        let liab_usd =
-            AccountService::upsert(&pool, None, "Loan".into(), "Liability".into(), "USD".into(), None)
-                .await
-                .expect("liab usd");
+        let liab_usd = AccountService::upsert(
+            &pool,
+            None,
+            "Loan".into(),
+            "Liability".into(),
+            "USD".into(),
+            None,
+        )
+        .await
+        .expect("liab usd");
 
         // 3. Setup Sheet (2025)
         let sheet = BalanceSheetService::upsert(&pool, None, 2025)
@@ -244,10 +256,16 @@ mod tests {
             .expect("setup settings");
 
         // 2. Setup Account
-        let asset_usd =
-            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into(), None)
-                .await
-                .expect("asset usd");
+        let asset_usd = AccountService::upsert(
+            &pool,
+            None,
+            "Cash".into(),
+            "Asset".into(),
+            "USD".into(),
+            None,
+        )
+        .await
+        .expect("asset usd");
 
         // 3. Setup Sheet (Future Year)
         // Assume test runs before 3000
@@ -277,10 +295,16 @@ mod tests {
             .await
             .expect("setup settings");
 
-        let asset_usd =
-            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into(), None)
-                .await
-                .expect("asset usd");
+        let asset_usd = AccountService::upsert(
+            &pool,
+            None,
+            "Cash".into(),
+            "Asset".into(),
+            "USD".into(),
+            None,
+        )
+        .await
+        .expect("asset usd");
 
         let sheet = BalanceSheetService::upsert(&pool, None, 2025)
             .await

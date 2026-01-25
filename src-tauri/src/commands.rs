@@ -90,7 +90,15 @@ pub async fn update_account(
     currency: String,
     sub_category: Option<String>,
 ) -> Result<Account, String> {
-    AccountService::upsert(&state.db, Some(id), name, account_type, currency, sub_category).await
+    AccountService::upsert(
+        &state.db,
+        Some(id),
+        name,
+        account_type,
+        currency,
+        sub_category,
+    )
+    .await
 }
 
 #[tauri::command]
