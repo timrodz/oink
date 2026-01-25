@@ -1,11 +1,16 @@
 import { NetWorthDataPoint } from "@/lib/api";
 import { MONTHS } from "@/lib/constants";
 import {
+  ASSET_SUB_CATEGORIES,
+  LIABILITY_SUB_CATEGORIES,
+  SubCategory,
+} from "@/lib/constants/sub-categories";
+import {
   formatCurrency,
   formatCurrencyCompact,
 } from "@/lib/currency-formatting";
 import { toPrivateValue } from "@/lib/private-value";
-import { MonthlyTotal, RetirementPlanProjection } from "@/lib/types";
+import { Account, Entry, MonthlyTotal, RetirementPlanProjection } from "@/lib/types";
 import {
   ChartData,
   ChartOptions,
@@ -14,6 +19,19 @@ import {
   TooltipItem,
 } from "chart.js";
 import { getRetirementYearFromDateString } from "./dates";
+
+export const SUB_CATEGORY_COLORS: Record<SubCategory | "uncategorized", { bg: string; border: string }> = {
+  cash: { bg: "rgba(34, 197, 94, 0.6)", border: "rgb(34, 197, 94)" },
+  investments: { bg: "rgba(59, 130, 246, 0.6)", border: "rgb(59, 130, 246)" },
+  real_estate: { bg: "rgba(168, 85, 247, 0.6)", border: "rgb(168, 85, 247)" },
+  vehicles: { bg: "rgba(245, 158, 11, 0.6)", border: "rgb(245, 158, 11)" },
+  other_asset: { bg: "rgba(107, 114, 128, 0.6)", border: "rgb(107, 114, 128)" },
+  credit_cards: { bg: "rgba(239, 68, 68, 0.6)", border: "rgb(239, 68, 68)" },
+  loans: { bg: "rgba(251, 146, 60, 0.6)", border: "rgb(251, 146, 60)" },
+  mortgages: { bg: "rgba(236, 72, 153, 0.6)", border: "rgb(236, 72, 153)" },
+  other_liability: { bg: "rgba(156, 163, 175, 0.6)", border: "rgb(156, 163, 175)" },
+  uncategorized: { bg: "rgba(75, 85, 99, 0.6)", border: "rgb(75, 85, 99)" },
+};
 
 export function getBalanceSheetChartData(monthlyTotals: MonthlyTotal[]) {
   const labels = [...MONTHS];
@@ -404,6 +422,111 @@ export function getRetirementProjectionChartOptions(
       mode: "nearest",
       axis: "x",
       intersect: false,
+    },
+  };
+}
+
+export interface SubCategoryBreakdownInput {
+  accounts: Account[];
+  entries: Entry[];
+  accountType: "Asset" | "Liability";
+}
+
+export function getSubCategoryBreakdownChartData(
+  input: SubCategoryBreakdownInput,
+): ChartData<"doughnut"> | null {
+  const { accounts, entries, accountType } = input;
+
+  const filteredAccounts = accounts.filter(
+    (a) => a.accountType === accountType && !a.isArchived,
+  );
+
+  if (filteredAccounts.length === 0) return null;
+
+  const latestEntryByAccount = new Map<string, number>();
+  for (const entry of entries) {
+    const existing = latestEntryByAccount.get(entry.accountId);
+    if (existing === undefined || entry.month > existing) {
+      latestEntryByAccount.set(entry.accountId, entry.amount);
+    }
+  }
+
+  const subCategoryTotals = new Map<string, number>();
+  let uncategorizedTotal = 0;
+
+  for (const account of filteredAccounts) {
+    const balance = latestEntryByAccount.get(account.id) ?? 0;
+    if (balance === 0) continue;
+
+    if (account.subCategory) {
+      const current = subCategoryTotals.get(account.subCategory) ?? 0;
+      subCategoryTotals.set(account.subCategory, current + balance);
+    } else {
+      uncategorizedTotal += balance;
+    }
+  }
+
+  const subCategoryOptions =
+    accountType === "Asset" ? ASSET_SUB_CATEGORIES : LIABILITY_SUB_CATEGORIES;
+
+  const labels: string[] = [];
+  const data: number[] = [];
+  const backgroundColors: string[] = [];
+  const borderColors: string[] = [];
+
+  for (const option of subCategoryOptions) {
+    const total = subCategoryTotals.get(option.key);
+    if (total && total > 0) {
+      labels.push(option.label);
+      data.push(total);
+      const colors = SUB_CATEGORY_COLORS[option.key];
+      backgroundColors.push(colors.bg);
+      borderColors.push(colors.border);
+    }
+  }
+
+  if (uncategorizedTotal > 0) {
+    labels.push("Uncategorized");
+    data.push(uncategorizedTotal);
+    backgroundColors.push(SUB_CATEGORY_COLORS.uncategorized.bg);
+    borderColors.push(SUB_CATEGORY_COLORS.uncategorized.border);
+  }
+
+  if (data.length === 0) return null;
+
+  return {
+    labels,
+    datasets: [
+      {
+        data,
+        backgroundColor: backgroundColors,
+        borderColor: borderColors,
+        borderWidth: 1,
+      },
+    ],
+  };
+}
+
+export function getSubCategoryBreakdownChartOptions(
+  isPrivacyMode: boolean,
+): ChartOptions<"doughnut"> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: TooltipItem<"doughnut">) => {
+            let label = context.label || "";
+            if (label) label += ": ";
+            label += toPrivateValue(context.formattedValue, isPrivacyMode);
+            return label;
+          },
+        },
+      },
     },
   };
 }
