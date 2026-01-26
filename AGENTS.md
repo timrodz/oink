@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Overview
-This is a Tauri desktop app for personal finances with a Rust backend and a React + TypeScript frontend. The app works offline by default and persists data in a local SQLite `.db` file. All business logic lives in Rust; the frontend renders and manipulates data exposed by Tauri commands.
+This is a Tauri v2 desktop app for personal finances with a Rust backend and a React + TypeScript frontend. The app works offline by default and persists data in a local SQLite `.db` file. All business logic lives in Rust; the frontend renders and manipulates data exposed by Tauri commands.
 
 ## Project Structure & Module Organization
 - `src/`: React UI, routes, and client-side state.

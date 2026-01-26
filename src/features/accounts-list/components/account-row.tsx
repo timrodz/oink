@@ -173,12 +173,12 @@ export function AccountRow({
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" title="ArchiveIcon">
                   <ArchiveIcon className="h-4 w-4" />
-                  <span className="sr-only">ArchiveIcon</span>
+                  <span className="sr-only">Archive</span>
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>ArchiveIcon Account?</AlertDialogTitle>
+                  <AlertDialogTitle>Archive Account?</AlertDialogTitle>
                   <AlertDialogDescription>
                     {`Are you sure you want to archive "${account.name}"? It will be hidden from your lists by default but still included in calculations.`}
                   </AlertDialogDescription>
@@ -188,7 +188,7 @@ export function AccountRow({
                   <AlertDialogAction
                     onClick={() => onToggleArchive(account.id)}
                   >
-                    ArchiveIcon
+                    Archive
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
