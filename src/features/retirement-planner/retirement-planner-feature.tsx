@@ -1,8 +1,8 @@
-import { getProjectionErrorKind } from "@/features/retirement-planner/lib/projection";
+import { getProjectionErrorKind } from "@/lib/retirement";
 import { useRetirementProjection } from "@/hooks/use-retirement";
 import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import { useUserSettings } from "@/hooks/use-user-settings";
-import { RetirementPlan } from "@/lib/types";
+import type { RetirementPlan } from "@/lib/types/retirement";
 import { useEffect, useMemo, useState } from "react";
 import { InputForm, RetirementInputFormValues } from "./components/input-form";
 import { NetWorthGrowthProjection } from "./components/net-worth-growth-projection";
@@ -122,7 +122,7 @@ export function RetirementPlannerFeature() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-12">
+    <div className="feature-container">
       <InputForm
         homeCurrency={homeCurrency}
         onProjectionValuesChange={setProjectionInputs}

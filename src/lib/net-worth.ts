@@ -1,5 +1,5 @@
-import { NetWorthDataPoint } from "@/lib/api";
-import { ONE_YEAR_IN_MONTHS } from "@/lib/constants";
+import type { NetWorthDataPoint } from "@/lib/types/net-worth";
+import { ONE_YEAR_IN_MONTHS } from "@/lib/constants/time";
 
 export function getFilteredHistory(
   history: NetWorthDataPoint[] | undefined,

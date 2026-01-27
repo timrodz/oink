@@ -1,4 +1,4 @@
-import { PRIVACY_MODE_VALUE } from "@/lib/constants";
+import { PRIVACY_MODE_VALUE } from "@/lib/constants/text";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 

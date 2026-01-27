@@ -9,21 +9,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getBalanceSheetChartData } from "@/lib/charts";
-import { MONTHS } from "@/lib/constants";
-import {
-  useAccounts,
-  useCurrencyRates,
-  useEntries,
-  useUpsertCurrencyRate,
-  useUpsertEntry,
-} from "@/lib/queries";
-import { BalanceSheet } from "@/lib/types";
+import { MONTHS } from "@/lib/constants/time";
+import type { BalanceSheet } from "@/lib/types/balance-sheets";
 import { useMemo } from "react";
 import { AccountSection } from "./components/account-section";
 import { DangerZone } from "./components/danger-zone";
 import { ExchangeRatesGrid } from "./components/exchange-rates-grid";
 import { TotalsGrid } from "./components/totals-grid";
-import { calculateMonthlyTotals } from "./lib/calculations";
+import { calculateMonthlyTotals } from "@/lib/balance-sheets";
+import { useAccounts } from "@/hooks/use-accounts";
+import { useEntries, useUpsertEntry } from "@/hooks/use-balance-sheets";
+import {
+  useCurrencyRates,
+  useUpsertCurrencyRate,
+} from "@/hooks/use-currency-rates";
 
 const TOTAL_COLUMNS = 14;
 
@@ -216,15 +215,15 @@ export function BalanceSheetFeature({
 
       {/* ACCOUNTS GRID */}
       <div>
-        <Table className="min-w-[1200px]">
+        <Table className="min-w-300">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px] sticky left-0 z-10 bg-background border-r">
+              <TableHead className="w-50 sticky left-0 z-10 bg-background border-r">
                 Account
               </TableHead>
-              <TableHead className="w-[100px] text-center">Currency</TableHead>
+              <TableHead className="w-25 text-center">Currency</TableHead>
               {MONTHS.map((month) => (
-                <TableHead key={month} className="text-right min-w-[100px]">
+                <TableHead key={month} className="text-right min-w-25">
                   {month}
                 </TableHead>
               ))}

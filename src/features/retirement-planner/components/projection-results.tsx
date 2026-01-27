@@ -9,9 +9,9 @@ import {
   formatCurrency,
   formatCurrencyCompact,
 } from "@/lib/currency-formatting";
-import { RetirementProjection } from "@/lib/types";
+import { getProjectionStatus } from "@/lib/retirement";
+import type { RetirementProjection } from "@/lib/types/retirement";
 import { RefreshCwIcon } from "lucide-react";
-import { getProjectionStatus } from "../lib/projection";
 
 interface ProjectionResultsProps {
   projectionQuery: {

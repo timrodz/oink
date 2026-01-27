@@ -2,7 +2,7 @@ import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
 import { useUserSettings } from "@/hooks/use-user-settings";
-import { useBalanceSheets } from "@/lib/queries";
+import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { ArrowLeftIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -47,13 +47,13 @@ export function BalanceSheetPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-sans flex flex-col">
+    <div className="page">
       <Header
         title={`${balanceSheet.year} Balance Sheet`}
         navigateBack="/balance-sheets"
       />
 
-      <main className="flex-1 overflow-auto p-4 w-full">
+      <main>
         <BalanceSheetFeature
           balanceSheet={balanceSheet}
           homeCurrency={settings.homeCurrency}

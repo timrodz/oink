@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BalanceSheet } from "@/lib/types";
+import type { BalanceSheet } from "@/lib/types/balance-sheets";
 import { ArrowRightIcon, CalendarIcon } from "lucide-react";
 
 interface BalanceSheetCardProps {

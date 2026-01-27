@@ -5,8 +5,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MONTHS } from "@/lib/constants";
-import { CurrencyRate } from "@/lib/types";
+import { MONTHS } from "@/lib/constants/time";
+import type { CurrencyRate } from "@/lib/types/currency-rates";
 import { RateRow } from "./rate-row";
 
 interface ExchangeRatesGridProps {
@@ -38,14 +38,14 @@ export function ExchangeRatesGrid({
       onScroll={onScroll}
       className="border rounded-md overflow-x-auto mt-8"
     >
-      <Table className="min-w-[1200px]">
+      <Table className="min-w-300">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[300px] sticky left-0 z-10 bg-background border-r font-bold">
+            <TableHead className="w-75 sticky left-0 z-10 bg-background border-r font-bold">
               Exchange Rates
             </TableHead>
             {MONTHS.map((month) => (
-              <TableHead key={month} className="text-right min-w-[100px]">
+              <TableHead key={month} className="text-right min-w-25">
                 {month}
               </TableHead>
             ))}

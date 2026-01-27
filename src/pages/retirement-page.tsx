@@ -4,12 +4,12 @@ import { RetirementPlannerFeature } from "@/features/retirement-planner/retireme
 
 export function RetirementPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans flex flex-col">
+    <main>
       <Header title="Retirement Planner" />
       <MainNav />
-      <main className="flex-1 overflow-auto p-4 w-full">
+      <section>
         <RetirementPlannerFeature />
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }

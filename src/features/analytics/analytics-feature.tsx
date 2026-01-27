@@ -6,8 +6,9 @@ import {
   getSubCategoryBreakdownChartData,
   getSubCategoryTrendChartData,
 } from "@/lib/charts";
-import { useAccounts, useBalanceSheets } from "@/lib/queries";
-import { Entry } from "@/lib/types";
+import { useAccounts } from "@/hooks/use-accounts";
+import { useBalanceSheets } from "@/hooks/use-balance-sheets";
+import type { Entry } from "@/lib/types/balance-sheets";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function AnalyticsFeature() {
@@ -97,9 +98,9 @@ export function AnalyticsFeature() {
   const homeCurrency = settings.homeCurrency;
 
   return (
-    <div className="container mx-auto space-y-8">
+    <div className="feature-container">
       {hasNoData ? (
-        <div className="rounded-xl border bg-card text-card-foreground shadow p-8 text-center">
+        <div className="rounded-xl border bg-card text-card-foreground shadow text-center">
           <p className="text-muted-foreground">
             No sub-category data available. Add sub-categories to your accounts
             to see analytics.

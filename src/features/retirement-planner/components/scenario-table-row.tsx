@@ -4,11 +4,14 @@ import {
   formatCurrency,
   formatCurrencyCompact,
 } from "@/lib/currency-formatting";
-import { RetirementPlan, RetirementProjection } from "@/lib/types";
+import { getProjectionErrorKind } from "@/lib/retirement";
+import type {
+  RetirementPlan,
+  RetirementProjection,
+} from "@/lib/types/retirement";
 import { Trash2Icon } from "lucide-react";
-import { getProjectionErrorKind } from "../lib/projection";
 
-export interface ScenarioRowData {
+interface ScenarioRowData {
   plan: RetirementPlan;
   projection: RetirementProjection | null;
   isLoading: boolean;
@@ -60,7 +63,7 @@ export function ScenarioTableRow({
       }`}
       onClick={() => onLoad(row.plan)}
     >
-      <TableCell className="max-w-[220px] whitespace-normal">
+      <TableCell className="max-w-55 whitespace-normal">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium text-foreground">{row.plan.name}</span>

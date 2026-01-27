@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { ReturnScenario, RetirementPlan } from "@/lib/types";
+import type { ReturnScenario, RetirementPlan } from "@/lib/types/retirement";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const RETIREMENT_PLAN_KEYS = {

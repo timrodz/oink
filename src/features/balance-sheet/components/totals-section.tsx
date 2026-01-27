@@ -1,8 +1,8 @@
 import { PrivateValue } from "@/components/ui/private-value";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { getGrowth } from "@/lib/balance-sheets";
 import { formatDecimal2Digits } from "@/lib/currency-formatting";
-import { MonthlyTotal } from "@/lib/types";
-import { getGrowth } from "../lib/calculations";
+import type { MonthlyTotal } from "@/lib/types/balance-sheets";
 
 interface TotalsSectionProps {
   monthlyTotals: MonthlyTotal[];

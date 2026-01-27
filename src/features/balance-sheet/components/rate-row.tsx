@@ -1,6 +1,6 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { ONE_YEAR_IN_MONTHS } from "@/lib/constants";
-import { CurrencyRate } from "@/lib/types";
+import { ONE_YEAR_IN_MONTHS } from "@/lib/constants/time";
+import type { CurrencyRate } from "@/lib/types/currency-rates";
 import { EditableCell } from "./editable-cell";
 
 interface RateRowProps {

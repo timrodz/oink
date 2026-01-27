@@ -1,14 +1,15 @@
 import { SubCategoryBreakdownChart } from "@/components/charts/sub-category-breakdown-chart";
 import { SubCategoryTrendChart } from "@/components/charts/sub-category-trend-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAccounts } from "@/hooks/use-accounts";
+import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { api } from "@/lib/api";
 import {
   getSubCategoryBreakdownChartData,
   getSubCategoryTrendChartData,
 } from "@/lib/charts";
-import { useAccounts, useBalanceSheets } from "@/lib/queries";
-import { Entry } from "@/lib/types";
+import type { Entry } from "@/lib/types/balance-sheets";
 import { ChartColumnStackedIcon, ChartPieIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 

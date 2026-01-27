@@ -9,14 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Account, api } from "@/lib/api";
-import {
-  getSubCategoriesByAccountType,
-  type AccountType,
-  type SubCategory,
-} from "@/lib/constants/sub-categories";
+import { api } from "@/lib/api";
+import type { SubCategory } from "@/lib/types/categories";
+import type { Account, AccountType } from "@/lib/types/accounts";
 import { RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getSubCategoriesByAccountType } from "@/lib/categories";
 
 interface AccountFormProps {
   onComplete: () => void;

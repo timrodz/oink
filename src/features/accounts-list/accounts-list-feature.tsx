@@ -18,7 +18,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
-import { Account, api } from "@/lib/api";
+import { api } from "@/lib/api";
+
 import {
   DndContext,
   DragEndEvent,
@@ -37,6 +38,7 @@ import {
 import { PlusIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AccountRow } from "./components/account-row";
+import type { Account } from "@/lib/types/accounts";
 
 interface AccountsListProps {
   homeCurrency: string;
@@ -175,7 +177,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[40px]"></TableHead>
+                <TableHead className="w-10"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Sub-category</TableHead>

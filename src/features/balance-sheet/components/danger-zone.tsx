@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDeleteBalanceSheet } from "@/lib/queries";
+import { useDeleteBalanceSheet } from "@/hooks/use-balance-sheets";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

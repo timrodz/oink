@@ -25,10 +25,10 @@ import { Switch } from "@/components/ui/switch";
 import {
   getScenarioLimitMessage,
   isScenarioLimitReached,
-} from "@/features/retirement-planner/lib/scenarios";
+} from "@/lib/retirement";
 import { useLatestNetWorth } from "@/hooks/use-net-worth";
 import { useRetirementPlans } from "@/hooks/use-retirement-plans";
-import { RetirementPlan } from "@/lib/types";
+import type { RetirementPlan } from "@/lib/types/retirement";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";

@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
-import { Theme } from "@/lib/types";
+import type { Theme } from "@/lib/types/theme";
 import { useTheme } from "@/providers/theme-provider";
 import { useState } from "react";
 

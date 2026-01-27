@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/dialog";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
-import { Account } from "@/lib/api";
-import { getSubCategoryLabel } from "@/lib/constants/sub-categories";
+import type { Account } from "@/lib/types/accounts";
+import { getSubCategoryLabel } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -77,7 +77,7 @@ export function AccountRow({
         account.isArchived && "opacity-50 grayscale",
       )}
     >
-      <TableCell className="w-[40px]">
+      <TableCell className="w-10">
         <Button
           variant="ghost"
           size="icon"

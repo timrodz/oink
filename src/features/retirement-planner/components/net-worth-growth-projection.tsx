@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { useRetirementPlanProjections } from "@/hooks/use-retirement";
 import { getRetirementProjectionChartData } from "@/lib/charts";
-import { RetirementPlan } from "@/lib/types";
+import type { RetirementPlan } from "@/lib/types/retirement";
 import { useMemo } from "react";
 
 interface NetWorthGrowthProjectionProps {

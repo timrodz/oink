@@ -1,26 +1,4 @@
-export type AccountType = "Asset" | "Liability";
-
-export type AssetSubCategory =
-  | "cash"
-  | "investments"
-  | "retirement"
-  | "real_estate"
-  | "vehicles"
-  | "other_asset";
-
-export type LiabilitySubCategory =
-  | "credit_cards"
-  | "loans"
-  | "mortgages"
-  | "other_liability";
-
-export type SubCategory = AssetSubCategory | LiabilitySubCategory;
-
-export interface SubCategoryOption {
-  key: SubCategory;
-  label: string;
-  accountType: AccountType;
-}
+import type { SubCategoryOption } from "@/lib/types/categories";
 
 export const ASSET_SUB_CATEGORIES: SubCategoryOption[] = [
   { key: "cash", label: "Cash", accountType: "Asset" },
@@ -46,17 +24,3 @@ export const ALL_SUB_CATEGORIES: SubCategoryOption[] = [
   ...ASSET_SUB_CATEGORIES,
   ...LIABILITY_SUB_CATEGORIES,
 ];
-
-export function getSubCategoriesByAccountType(
-  accountType: AccountType,
-): SubCategoryOption[] {
-  return accountType === "Asset"
-    ? ASSET_SUB_CATEGORIES
-    : LIABILITY_SUB_CATEGORIES;
-}
-
-export function getSubCategoryLabel(key: string | null): string | null {
-  if (!key) return null;
-  const option = ALL_SUB_CATEGORIES.find((sc) => sc.key === key);
-  return option?.label ?? null;
-}

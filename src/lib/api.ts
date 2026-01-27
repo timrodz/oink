@@ -1,36 +1,17 @@
 import { invoke } from "@tauri-apps/api/core";
-import { COMMANDS } from "./commands";
-import {
-  Account,
-  BalanceSheet,
-  CurrencyRate,
-  Entry,
-  OnboardingStep,
+import { COMMANDS } from "@/lib/constants/commands";
+import type { NetWorthDataPoint } from "@/lib/types/net-worth";
+import type { Account } from "@/lib/types/accounts";
+import type { BalanceSheet, Entry } from "@/lib/types/balance-sheets";
+import type { CurrencyRate } from "@/lib/types/currency-rates";
+import type { OnboardingStep } from "@/lib/types/onboarding";
+import type {
   RetirementPlan,
-  RetirementPlanProjection,
-  RetirementProjection,
   ReturnScenario,
-  UserSettings,
-} from "./types";
-
-export interface NetWorthDataPoint {
-  year: number;
-  month: number;
-  totalAssets: number;
-  totalLiabilities: number;
-  netWorth: number;
-  currency: string;
-}
-
-// Re-export types for consumers
-export type {
-  Account,
-  BalanceSheet,
-  CurrencyRate,
-  Entry,
-  RetirementPlan,
-  UserSettings,
-};
+  RetirementProjection,
+  RetirementPlanProjection,
+} from "@/lib/types/retirement";
+import { UserSettings } from "@/lib/types/user-settings";
 
 // API Adapter
 export const api = {

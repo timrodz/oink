@@ -1,10 +1,10 @@
 import { api } from "@/lib/api";
 import { getRetirementYearFromDateString } from "@/lib/dates";
-import {
+import type {
   RetirementPlan,
   RetirementPlanProjection,
   ReturnScenario,
-} from "@/lib/types";
+} from "@/lib/types/retirement";
 import { useQueries, useQuery } from "@tanstack/react-query";
 
 export const RETIREMENT_KEYS = {

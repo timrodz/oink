@@ -12,15 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useRetirementScenarioProjections } from "@/hooks/use-retirement";
+import type { RetirementPlan } from "@/lib/types/retirement";
+import { RefreshCwIcon } from "lucide-react";
+import { ScenarioTableRow } from "./scenario-table-row";
+import { SCENARIO_LIMIT } from "@/lib/constants/retirement";
 import {
   getEarliestScenarioIds,
   getHighestIncomeScenarioIds,
-} from "@/features/retirement-planner/lib/scenario-comparison";
-import { useRetirementScenarioProjections } from "@/hooks/use-retirement";
-import { RetirementPlan } from "@/lib/types";
-import { RefreshCwIcon } from "lucide-react";
-import { SCENARIO_LIMIT } from "../lib/scenarios";
-import { ScenarioTableRow } from "./scenario-table-row";
+} from "@/lib/retirement";
 
 interface SavedScenariosProps {
   savedPlansLoading: boolean;

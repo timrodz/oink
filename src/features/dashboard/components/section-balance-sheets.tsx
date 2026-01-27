@@ -9,7 +9,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { YearSelector } from "@/components/year-selector";
-import { useBalanceSheets, useCreateBalanceSheet } from "@/lib/queries";
+import {
+  useBalanceSheets,
+  useCreateBalanceSheet,
+} from "@/hooks/use-balance-sheets";
 import { PlusIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

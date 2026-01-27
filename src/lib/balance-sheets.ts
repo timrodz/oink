@@ -1,6 +1,8 @@
-import { MONTHS } from "@/lib/constants";
+import { MONTHS } from "@/lib/constants/time";
 import { formatDecimal2Digits } from "@/lib/currency-formatting";
-import { Account, CurrencyRate, Entry, MonthlyTotal } from "@/lib/types";
+import type { Account } from "@/lib/types/accounts";
+import type { Entry, MonthlyTotal } from "@/lib/types/balance-sheets";
+import type { CurrencyRate } from "@/lib/types/currency-rates";
 
 export const calculateMonthlyTotals = (
   accounts: Account[],

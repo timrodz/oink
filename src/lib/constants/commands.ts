@@ -45,5 +45,3 @@ export const COMMANDS = {
   GET_ONBOARDING_STATUS: "get_onboarding_status",
   COMPLETE_ONBOARDING_STEP: "complete_onboarding_step",
 } as const;
-
-export type CommandName = (typeof COMMANDS)[keyof typeof COMMANDS];

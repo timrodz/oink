@@ -1,4 +1,4 @@
-import { PRIVACY_MODE_VALUE } from "@/lib/constants";
+import { PRIVACY_MODE_VALUE } from "@/lib/constants/text";
 
 export function toPrivateValue(
   value: string | number | null | undefined,

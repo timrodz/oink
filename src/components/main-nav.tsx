@@ -1,19 +1,13 @@
+import { NAV_ITEMS } from "@/lib/constants/navigation";
 import { cn } from "@/lib/utils";
-import { ChartPieIcon, HomeIcon, SproutIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
-
-const navItems = [
-  { to: "/", label: "Dashboard", end: true, icon: HomeIcon },
-  { to: "/analytics", label: "Analytics", icon: ChartPieIcon },
-  { to: "/retirement", label: "Retirement Planner", icon: SproutIcon },
-];
 
 export function MainNav() {
   return (
     <nav className="border-b bg-background">
       <div className="container mx-auto px-4 py-2">
         <div className="flex flex-wrap gap-2">
-          {navItems.map((item) => (
+          {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

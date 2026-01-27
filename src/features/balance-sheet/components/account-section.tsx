@@ -1,6 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { MONTHS } from "@/lib/constants";
-import { Account, Entry } from "@/lib/types";
+import { MONTHS } from "@/lib/constants/time";
+import type { Account } from "@/lib/types/accounts";
+import type { Entry } from "@/lib/types/balance-sheets";
 import { memo, useCallback, useMemo } from "react";
 import { EditableCell } from "./editable-cell";
 

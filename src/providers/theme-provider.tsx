@@ -1,5 +1,5 @@
-import { THEME_STORAGE_KEY } from "@/lib/constants";
-import { Theme } from "@/lib/types";
+import { THEME_STORAGE_KEY } from "@/lib/constants/theme";
+import type { Theme } from "@/lib/types/theme";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type ThemeProviderProps = {
