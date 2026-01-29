@@ -13,7 +13,7 @@ import { StepSettings } from "./steps/step-settings";
 
 export function OnboardingFeature() {
   const { data: status, isLoading, refetch } = useOnboarding();
-  const { data: settings } = useUserSettings();
+  const { data: settings, refetch: refetchSettings } = useUserSettings();
 
   if (isLoading || !status) {
     return (
@@ -33,8 +33,9 @@ export function OnboardingFeature() {
     return null;
   }
 
-  const handleComplete = () => {
-    refetch();
+  const handleComplete = async () => {
+    await refetch();
+    await refetchSettings();
   };
 
   return (
@@ -42,15 +43,16 @@ export function OnboardingFeature() {
       <Card className="w-full max-w-md shadow-lg border-none sm:border-solid">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold tracking-tight text-center">
-            {currentStep.stepKey === "CONFIGURE_SETTINGS" && "Welcome aboard!"}
+            {currentStep.stepKey === "CONFIGURE_SETTINGS" &&
+              "Welcome to <APP_NAME>"}
             {currentStep.stepKey === "CREATE_FIRST_ACCOUNT" &&
               "Let's add your first account"}
             {currentStep.stepKey === "CREATE_FIRST_BALANCE_SHEET" &&
               "Create your first balance sheet"}
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-md">
             {currentStep.stepKey === "CONFIGURE_SETTINGS" &&
-              "First, tell us a bit about yourself."}
+              "Get ready to level up your finances!"}
             {currentStep.stepKey === "CREATE_FIRST_ACCOUNT" &&
               "To track your net worth, we need at least one account."}
             {currentStep.stepKey === "CREATE_FIRST_BALANCE_SHEET" &&
@@ -61,12 +63,13 @@ export function OnboardingFeature() {
           {currentStep.stepKey === "CONFIGURE_SETTINGS" && (
             <StepSettings onComplete={handleComplete} />
           )}
-          {currentStep.stepKey === "CREATE_FIRST_ACCOUNT" && (
-            <StepAccount
-              onComplete={handleComplete}
-              homeCurrency={settings?.homeCurrency || "USD"}
-            />
-          )}
+          {currentStep.stepKey === "CREATE_FIRST_ACCOUNT" &&
+            settings?.homeCurrency && (
+              <StepAccount
+                onComplete={handleComplete}
+                homeCurrency={settings.homeCurrency}
+              />
+            )}
           {currentStep.stepKey === "CREATE_FIRST_BALANCE_SHEET" && (
             <StepBalanceSheet onComplete={handleComplete} />
           )}
