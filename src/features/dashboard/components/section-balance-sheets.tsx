@@ -1,6 +1,5 @@
 import { BalanceSheetCard } from "@/components/balance-sheet-card";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Dialog,
   DialogContent,
@@ -9,12 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { YearSelector } from "@/components/year-selector";
+import { useAccounts } from "@/hooks/use-accounts";
 import {
   useBalanceSheets,
   useCreateBalanceSheet,
 } from "@/hooks/use-balance-sheets";
-import { useAccounts } from "@/hooks/use-accounts";
 import { useNetWorthHistory } from "@/hooks/use-net-worth";
 import { ACCOUNTS_CHANGED_EVENT } from "@/lib/constants/events";
 import { PlusIcon, RefreshCwIcon } from "lucide-react";
@@ -124,7 +124,7 @@ export function SectionBalanceSheets() {
                     ? "Start here"
                     : undefined
                 }
-                badgeLevel="warning"
+                badgeLevel="info"
               />
             ))}
 

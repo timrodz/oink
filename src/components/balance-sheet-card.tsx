@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { BalanceSheet } from "@/lib/types/balance-sheets";
 import { StatusBadge } from "@/components/ui/status-badge";
+import type { BalanceSheet } from "@/lib/types/balance-sheets";
 import { ArrowRightIcon, CalendarIcon } from "lucide-react";
 
 interface BalanceSheetCardProps {
@@ -27,9 +27,7 @@ export function BalanceSheetCard({
           {balanceSheet.year}
         </CardTitle>
         <div className="flex items-center gap-2">
-          {badgeText && (
-            <StatusBadge level={badgeLevel} text={badgeText} />
-          )}
+          {badgeText && <StatusBadge level={badgeLevel} text={badgeText} />}
           <ArrowRightIcon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
         </div>
       </CardHeader>
