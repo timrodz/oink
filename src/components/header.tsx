@@ -81,7 +81,7 @@ export function Header({ title, navigateBack }: HeaderProps) {
                 }}
                 initialValues={{
                   name: settings?.name ?? "",
-                  currency: settings?.homeCurrency ?? "",
+                  homeCurrency: settings?.homeCurrency ?? "",
                   theme: settings?.theme ?? "system",
                 }}
               />
