@@ -1,0 +1,8 @@
+{
+  "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+  "*.{json,md}": "prettier --write",
+  "*.rs": [
+    "cargo clippy --manifest-path src-tauri/Cargo.toml",
+    "cargo fmt --manifest-path src-tauri/Cargo.toml"
+  ]
+}
