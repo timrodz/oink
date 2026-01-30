@@ -5,7 +5,7 @@ import { RetirementPlannerFeature } from "@/features/retirement-planner/retireme
 export function RetirementPage() {
   return (
     <PageContainer>
-      <Header title="Retirement Planner" />
+      <Header />
       <main>
         <RetirementPlannerFeature />
       </main>

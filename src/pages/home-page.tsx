@@ -5,7 +5,7 @@ import { DashboardFeature } from "@/features/dashboard/dashboard-feature";
 export function HomePage() {
   return (
     <PageContainer>
-      <Header title="Home" />
+      <Header />
       <main>
         <DashboardFeature />
       </main>

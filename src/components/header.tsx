@@ -14,13 +14,7 @@ import { EyeIcon, EyeOffIcon, SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { MainNav } from "./main-nav";
 
-interface HeaderProps {
-  title: string;
-  navigateBack?: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function Header(props: HeaderProps) {
+export function Header() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
   const { data: settings, refetch: refetchSettings } = useUserSettings();

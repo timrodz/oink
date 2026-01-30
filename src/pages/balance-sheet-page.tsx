@@ -61,10 +61,7 @@ export function BalanceSheetPage() {
 
   return (
     <PageContainer>
-      <Header
-        title={`${balanceSheet.year} Balance Sheet`}
-        navigateBack="/balance-sheets"
-      />
+      <Header />
 
       <main>
         <BalanceSheetFeature
