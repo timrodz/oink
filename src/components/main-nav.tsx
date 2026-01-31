@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 export function MainNav() {
   return (
-    <nav className="mx-auto px-2">
+    <nav className="mx-auto px-2 pb-2">
       <div className="flex flex-wrap gap-1">
         {/* {navigateBack && (
           <NavLink to={navigateBack} className="nav-link nav-link-hover">
