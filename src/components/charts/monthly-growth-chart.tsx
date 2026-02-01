@@ -44,7 +44,7 @@ export function MonthlyGrowthChart({
   );
 
   return (
-    <div className={cn("h-[300px] w-full", className)}>
+    <div className={cn("h-75 w-full", className)}>
       {isLoading ? (
         <div className="h-full flex items-center justify-center text-muted-foreground">
           Loading monthly growth...
