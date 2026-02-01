@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
 import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useNetWorthHistory } from "@/hooks/use-net-worth";
-import { useUserSettings } from "@/hooks/use-user-settings";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { ArrowLeftIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -17,7 +17,7 @@ export function BalanceSheetPage() {
   } = useBalanceSheets();
   const { data: netWorthHistory, isLoading: netWorthLoading } =
     useNetWorthHistory();
-  const { data: settings, isLoading: settingsLoading } = useUserSettings();
+  const { settings } = useUserSettingsContext();
 
   const selectedYear = year ? parseInt(year, 10) : null;
   const balanceSheet = sheets?.find((s) => s.year === selectedYear);
@@ -31,7 +31,7 @@ export function BalanceSheetPage() {
   const showOnboardingHint =
     !netWorthLoading && !hasNetWorthData && isMostRecentSheet;
 
-  if (sheetsLoading || settingsLoading) {
+  if (sheetsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
@@ -47,7 +47,7 @@ export function BalanceSheetPage() {
     );
   }
 
-  if (!selectedYear || !balanceSheet || !settings) {
+  if (!selectedYear || !balanceSheet) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col gap-4">
         <h2 className="text-2xl font-bold">Balance Sheet Not Found</h2>

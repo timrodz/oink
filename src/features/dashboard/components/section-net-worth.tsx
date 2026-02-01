@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccounts } from "@/hooks/use-accounts";
 import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useNetWorthHistory } from "@/hooks/use-net-worth";
-import { useUserSettings } from "@/hooks/use-user-settings";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { api } from "@/lib/api";
 import { ACCOUNTS_CHANGED_EVENT } from "@/lib/constants/events";
 import { calculateGrowth, getFilteredHistory } from "@/lib/net-worth";
@@ -20,7 +20,7 @@ import { getNetWorthTrendChartData } from "@/lib/charts/net-worth-trend";
 import { getSubCategoryBreakdownChartData } from "@/lib/charts/sub-category-breakdown";
 
 export function SectionNetWorth() {
-  const { data: settings } = useUserSettings();
+  const { settings } = useUserSettingsContext();
   const { data: netWorthHistory, isLoading: historyLoading } =
     useNetWorthHistory();
   const {
@@ -126,7 +126,6 @@ export function SectionNetWorth() {
     [accounts, entries],
   );
 
-  if (!settings) return null;
   if (historyLoading) return null;
   if (!historyLoading && (!netWorthHistory || netWorthHistory.length === 0)) {
     return null;

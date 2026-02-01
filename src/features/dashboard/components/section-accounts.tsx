@@ -1,10 +1,8 @@
 import { AccountsListFeature } from "@/features/accounts-list/accounts-list-feature";
-import { useUserSettings } from "@/hooks/use-user-settings";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 
 export function SectionAccounts() {
-  const { data: settings } = useUserSettings();
-
-  if (!settings) return null;
+  const { settings } = useUserSettingsContext();
 
   return (
     <section>

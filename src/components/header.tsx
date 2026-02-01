@@ -8,8 +8,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { UserSettingsFormFeature } from "@/features/user-settings-form/user-settings-form-feature";
-import { useUserSettings } from "@/hooks/use-user-settings";
 import { usePrivacy } from "@/providers/privacy-provider";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { EyeIcon, EyeOffIcon, SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { MainNav } from "./main-nav";
@@ -17,14 +17,14 @@ import { MainNav } from "./main-nav";
 export function Header() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
-  const { data: settings, refetch: refetchSettings } = useUserSettings();
+  const { settings, refresh } = useUserSettingsContext();
 
   return (
     <header className="border-b mx-auto px-4 py-2.5 flex items-center justify-between">
       <MainNav />
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground mr-2">
-          {settings?.name ? `Hello, ${settings.name}` : "Hello"}
+          {settings.name ? `Hello, ${settings.name}` : "Hello"}
         </span>
         <Button
           variant="ghost"
@@ -57,13 +57,13 @@ export function Header() {
             </DialogHeader>
             <UserSettingsFormFeature
               onComplete={() => {
-                refetchSettings();
+                void refresh();
                 setSettingsOpen(false);
               }}
               initialValues={{
-                name: settings?.name ?? "",
-                homeCurrency: settings?.homeCurrency ?? "",
-                theme: settings?.theme ?? "system",
+                name: settings.name,
+                homeCurrency: settings.homeCurrency,
+                theme: settings.theme ?? "system",
               }}
             />
           </DialogContent>

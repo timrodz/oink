@@ -1,15 +1,18 @@
 import { Header } from "@/components/header";
+import { UserSettingsProvider } from "@/providers/user-settings-provider";
 import { Outlet } from "react-router-dom";
 
 export function AppLayout() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="sticky top-0 z-10 bg-background">
-        <Header />
+    <UserSettingsProvider>
+      <div className="flex min-h-screen flex-col">
+        <div className="sticky top-0 z-10 bg-background">
+          <Header />
+        </div>
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
       </div>
-      <main className="flex-1 overflow-y-auto">
-        <Outlet />
-      </main>
-    </div>
+    </UserSettingsProvider>
   );
 }

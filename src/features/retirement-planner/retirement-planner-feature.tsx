@@ -1,6 +1,6 @@
 import { useRetirementProjection } from "@/hooks/use-retirement";
 import { useRetirementPlans } from "@/hooks/use-retirement-plans";
-import { useUserSettings } from "@/hooks/use-user-settings";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { getProjectionErrorKind } from "@/lib/retirement";
 import type {
   RetirementPlan,
@@ -13,13 +13,13 @@ import { ProjectionResults } from "./components/projection-results";
 import { SavedScenarios } from "./components/saved-scenarios";
 
 export function RetirementPlannerFeature() {
-  const { data: settings } = useUserSettings();
+  const { settings } = useUserSettingsContext();
   const [projectionInputs, setProjectionInputs] =
     useState<retirementProjectionFormValues | null>(null);
   const [loadedPlanId, setLoadedPlanId] = useState<string | null>(null);
   const [chartPlanId, setChartPlanId] = useState<string | null>(null);
 
-  const homeCurrency = settings?.homeCurrency;
+  const homeCurrency = settings.homeCurrency;
 
   // Queries
   const projectionQuery = useRetirementProjection(
@@ -119,10 +119,6 @@ export function RetirementPlannerFeature() {
     projectionErrorKind === "notAchievable"
       ? "text-amber-600"
       : "text-destructive";
-
-  if (!homeCurrency) {
-    return null;
-  }
 
   return (
     <div className="space-y-4">
