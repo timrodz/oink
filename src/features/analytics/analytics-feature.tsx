@@ -4,10 +4,8 @@ import { useAccounts } from "@/hooks/use-accounts";
 import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { api } from "@/lib/api";
-import {
-  getSubCategoryBreakdownChartData,
-  getSubCategoryTrendChartData,
-} from "@/lib/charts";
+import { getSubCategoryBreakdownChartData } from "@/lib/charts/sub-category-breakdown";
+import { getSubCategoryTrendChartData } from "@/lib/charts/sub-category-trend";
 import type { Entry } from "@/lib/types/balance-sheets";
 import { useCallback, useEffect, useMemo, useState } from "react";
 

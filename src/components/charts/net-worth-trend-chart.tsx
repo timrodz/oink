@@ -1,4 +1,4 @@
-import { getNetWorthTrendChartOptions } from "@/lib/charts";
+import { getNetWorthTrendChartOptions } from "@/lib/charts/net-worth-trend";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import { ChartData } from "chart.js";

@@ -19,3 +19,28 @@ export const SUB_CATEGORY_COLORS: Record<
   },
   uncategorized: { bg: "rgba(75, 85, 99, 0.6)", border: "rgb(75, 85, 99)" },
 };
+
+export const MIN_NET_WORTH_POINTS_FOR_GROWTH = 2;
+
+export const MONTHLY_GROWTH_COLORS = {
+  positive: { bg: "rgba(34, 197, 94, 0.6)", border: "rgb(34, 197, 94)" },
+  negative: { bg: "rgba(239, 68, 68, 0.6)", border: "rgb(239, 68, 68)" },
+};
+
+export const NET_WORTH_TREND_COLORS = {
+  line: "rgb(59, 130, 246)",
+  gradientStart: "rgba(59, 130, 246, 0.5)",
+  gradientEnd: "rgba(59, 130, 246, 0.0)",
+};
+
+export const NET_WORTH_BREAKDOWN_COLORS = {
+  assets: { bg: "rgba(34, 197, 94, 0.6)", border: "rgb(34, 197, 94)" },
+  liabilities: { bg: "rgba(239, 68, 68, 0.6)", border: "rgb(239, 68, 68)" },
+};
+
+export const RETIREMENT_PROJECTION_POINT_COLORS = {
+  highlight: "rgb(34, 197, 94)",
+  default: "rgb(59, 130, 246)",
+};
+
+export const CHART_GRID_LINE_COLOR = "rgba(0, 0, 0, 0.05)";

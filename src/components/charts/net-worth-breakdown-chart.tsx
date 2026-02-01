@@ -1,4 +1,4 @@
-import { getNetworthBreakdownChartOptions } from "@/lib/charts";
+import { getNetworthBreakdownChartOptions } from "@/lib/charts/net-worth-breakdown";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import {

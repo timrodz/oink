@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRetirementPlanProjections } from "@/hooks/use-retirement";
-import { getRetirementProjectionChartData } from "@/lib/charts";
+import { getRetirementProjectionChartData } from "@/lib/charts/retirement-projection";
 import type { RetirementPlan } from "@/lib/types/retirement";
 import { useMemo } from "react";
 

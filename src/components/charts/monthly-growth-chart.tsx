@@ -1,4 +1,4 @@
-import { getMonthlyGrowthChartOptions } from "@/lib/charts";
+import { getMonthlyGrowthChartOptions } from "@/lib/charts/monthly-growth";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import {

@@ -1,4 +1,4 @@
-import { getSubCategoryTrendChartOptions } from "@/lib/charts";
+import { getSubCategoryTrendChartOptions } from "@/lib/charts/sub-category-trend";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import {

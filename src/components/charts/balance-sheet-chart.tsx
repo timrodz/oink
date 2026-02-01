@@ -1,4 +1,4 @@
-import { getBalanceSheetChartOptions } from "@/lib/charts";
+import { getBalanceSheetChartOptions } from "@/lib/charts/balance-sheet";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import {

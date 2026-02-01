@@ -7,13 +7,13 @@ import {
   useUpsertCurrencyRate,
 } from "@/hooks/use-currency-rates";
 import { calculateMonthlyTotals } from "@/lib/balance-sheets";
-import { getBalanceSheetChartData } from "@/lib/charts";
 import type { BalanceSheet } from "@/lib/types/balance-sheets";
 import { useMemo } from "react";
 import { AccountsGrid } from "./components/accounts-grid";
 import { DangerZone } from "./components/danger-zone";
 import { ExchangeRatesGrid } from "./components/exchange-rates-grid";
 import { TotalsGrid } from "./components/totals-grid";
+import { getBalanceSheetChartData } from "@/lib/charts/balance-sheet";
 
 interface BalanceSheetFeatureProps {
   balanceSheet: BalanceSheet;

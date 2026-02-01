@@ -1,4 +1,4 @@
-import { getSubCategoryBreakdownChartOptions } from "@/lib/charts";
+import { getSubCategoryBreakdownChartOptions } from "@/lib/charts/sub-category-breakdown";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import {

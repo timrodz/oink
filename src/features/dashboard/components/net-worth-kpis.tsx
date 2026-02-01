@@ -81,7 +81,7 @@ export function NetWorthKPIs({
                     ? "text-chart-2 flex items-center"
                     : assetGrowth < 0
                       ? "text-destructive flex items-center"
-                      : "text-muted-foreground flex items-center"
+                      : "text-secondary flex items-center"
                 }
               >
                 {assetGrowth > 0 ? (

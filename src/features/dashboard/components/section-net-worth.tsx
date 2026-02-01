@@ -8,18 +8,16 @@ import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useNetWorthHistory } from "@/hooks/use-net-worth";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { api } from "@/lib/api";
-import {
-  getMonthlyGrowthChartData,
-  getNetWorthBreakdownChartData,
-  getNetWorthTrendChartData,
-  getSubCategoryBreakdownChartData,
-} from "@/lib/charts";
 import { ACCOUNTS_CHANGED_EVENT } from "@/lib/constants/events";
 import { calculateGrowth, getFilteredHistory } from "@/lib/net-worth";
 import type { Entry } from "@/lib/types/balance-sheets";
 import { ChartColumnBigIcon, ChartLineIcon, ChartPieIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NetWorthKPIs } from "./net-worth-kpis";
+import { getMonthlyGrowthChartData } from "@/lib/charts/monthly-growth";
+import { getNetWorthBreakdownChartData } from "@/lib/charts/net-worth-breakdown";
+import { getNetWorthTrendChartData } from "@/lib/charts/net-worth-trend";
+import { getSubCategoryBreakdownChartData } from "@/lib/charts/sub-category-breakdown";
 
 export function SectionNetWorth() {
   const { data: settings } = useUserSettings();

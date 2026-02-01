@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "titleBarStyle": "Overlay",
+        "titleBarStyle": "Visible",
         "title": "",
         "width": 1280,
         "height": 720

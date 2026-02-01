@@ -1,4 +1,4 @@
-import { getRetirementProjectionChartOptions } from "@/lib/charts";
+import { getRetirementProjectionChartOptions } from "@/lib/charts/retirement-projection";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import { ChartData } from "chart.js";
