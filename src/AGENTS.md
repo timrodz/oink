@@ -47,4 +47,3 @@ Bun + Vite:
 ## Frontend Architecture Notes
 
 - The UI should only call Tauri commands; avoid duplicating business logic.
-- Charts must use Chart.js via `react-chartjs-2`.
