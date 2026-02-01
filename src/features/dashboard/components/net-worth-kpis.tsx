@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PrivateValue } from "@/components/ui/private-value";
 import { formatCurrency } from "@/lib/currency-formatting";
-import { cn } from "@/lib/utils";
 import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
@@ -17,24 +16,6 @@ interface NetWorthKPIsProps {
   liabilityGrowth?: number;
   homeCurrency: string;
   periodLabel?: string;
-}
-
-function getGrowthClassName(
-  value: number,
-  classes: {
-    positive: string;
-    negative: string;
-    neutral: string;
-  },
-) {
-  return cn(
-    value > 0
-      ? classes.positive
-      : value < 0
-        ? classes.negative
-        : classes.neutral,
-    "flex items-center",
-  );
 }
 
 function getTrendLabel(value: number) {
@@ -58,16 +39,7 @@ export function NetWorthKPIs({
       <Card>
         <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Net Worth</CardTitle>
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full border border-current/20 bg-muted/30 px-2 py-0.5 text-xs font-medium",
-              getGrowthClassName(momGrowth, {
-                positive: "text-chart-1",
-                negative: "text-chart-2",
-                neutral: "text-muted-foreground",
-              }),
-            )}
-          >
+          <span className="inline-flex items-center gap-1 rounded-full border border-current/20 bg-muted/30 px-2 py-0.5 text-xs font-medium">
             {momGrowth > 0 ? (
               <ArrowUpRightIcon className="h-3 w-3" />
             ) : momGrowth < 0 ? (
@@ -96,16 +68,7 @@ export function NetWorthKPIs({
         <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Assets</CardTitle>
           {assetGrowth !== undefined && (
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full border border-current/20 bg-muted/30 px-2 py-0.5 text-xs font-medium",
-                getGrowthClassName(assetGrowth, {
-                  positive: "text-chart-1",
-                  negative: "text-chart-2",
-                  neutral: "text-secondary",
-                }),
-              )}
-            >
+            <span className="inline-flex items-center gap-1 rounded-full border border-current/20 bg-muted/30 px-2 py-0.5 text-xs font-medium">
               {assetGrowth > 0 ? (
                 <ArrowUpRightIcon className="h-3 w-3" />
               ) : assetGrowth < 0 ? (
@@ -135,16 +98,7 @@ export function NetWorthKPIs({
             Total Liabilities
           </CardTitle>
           {liabilityGrowth !== undefined && (
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full border border-current/20 bg-muted/30 px-2 py-0.5 text-xs font-medium",
-                getGrowthClassName(liabilityGrowth, {
-                  positive: "text-chart-2",
-                  negative: "text-chart-1",
-                  neutral: "text-muted-foreground",
-                }),
-              )}
-            >
+            <span className="inline-flex items-center gap-1 rounded-full border border-current/20 bg-muted/30 px-2 py-0.5 text-xs font-medium">
               {liabilityGrowth > 0 ? (
                 <ArrowUpRightIcon className="h-3 w-3" />
               ) : liabilityGrowth < 0 ? (
