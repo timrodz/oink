@@ -50,7 +50,7 @@ export function SubCategoryTrendChart({
       <h4 className="text-sm font-medium text-muted-foreground text-center">
         {title}
       </h4>
-      <div className="h-[300px] w-full">
+      <div className="h-75 w-full">
         {isLoading ? (
           <div className="h-full flex items-center justify-center text-muted-foreground">
             Loading trend...

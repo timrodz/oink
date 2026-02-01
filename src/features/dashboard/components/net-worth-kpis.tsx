@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PrivateValue } from "@/components/ui/private-value";
 import { formatCurrency } from "@/lib/currency-formatting";
+import { cn } from "@/lib/utils";
 import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
@@ -16,6 +17,24 @@ interface NetWorthKPIsProps {
   liabilityGrowth?: number;
   homeCurrency: string;
   periodLabel?: string;
+}
+
+function getGrowthClassName(
+  value: number,
+  classes: {
+    positive: string;
+    negative: string;
+    neutral: string;
+  },
+) {
+  return cn(
+    value > 0
+      ? classes.positive
+      : value < 0
+        ? classes.negative
+        : classes.neutral,
+    "flex items-center",
+  );
 }
 
 export function NetWorthKPIs({
@@ -43,13 +62,11 @@ export function NetWorthKPIs({
           </div>
           <p className="text-xs text-muted-foreground flex items-center mt-1">
             <span
-              className={
-                momGrowth > 0
-                  ? "text-chart-2 flex items-center"
-                  : momGrowth < 0
-                    ? "text-destructive flex items-center"
-                    : "text-muted-foreground flex items-center"
-              }
+              className={getGrowthClassName(momGrowth, {
+                positive: "text-chart-1",
+                negative: "text-chart-2",
+                neutral: "text-muted-foreground",
+              })}
             >
               {momGrowth > 0 ? (
                 <ArrowUpRightIcon className="h-3 w-3 mr-1" />
@@ -76,13 +93,11 @@ export function NetWorthKPIs({
           <p className="text-xs text-muted-foreground flex items-center mt-1">
             {assetGrowth !== undefined && (
               <span
-                className={
-                  assetGrowth > 0
-                    ? "text-chart-2 flex items-center"
-                    : assetGrowth < 0
-                      ? "text-destructive flex items-center"
-                      : "text-secondary flex items-center"
-                }
+                className={getGrowthClassName(assetGrowth, {
+                  positive: "text-chart-1",
+                  negative: "text-chart-2",
+                  neutral: "text-secondary",
+                })}
               >
                 {assetGrowth > 0 ? (
                   <ArrowUpRightIcon className="h-3 w-3 mr-1" />
@@ -114,13 +129,11 @@ export function NetWorthKPIs({
           <p className="text-xs text-muted-foreground flex items-center mt-1">
             {liabilityGrowth !== undefined && (
               <span
-                className={
-                  liabilityGrowth > 0 // Growth in liabilities is usually bad (red)
-                    ? "text-destructive flex items-center"
-                    : liabilityGrowth < 0
-                      ? "text-chart-2 flex items-center"
-                      : "text-muted-foreground flex items-center"
-                }
+                className={getGrowthClassName(liabilityGrowth, {
+                  positive: "text-chart-2",
+                  negative: "text-chart-1",
+                  neutral: "text-muted-foreground",
+                })}
               >
                 {liabilityGrowth > 0 ? (
                   <ArrowUpRightIcon className="h-3 w-3 mr-1" />
