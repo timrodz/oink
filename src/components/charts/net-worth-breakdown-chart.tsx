@@ -1,44 +1,73 @@
-import { getNetworthBreakdownChartOptions } from "@/lib/charts/net-worth-breakdown";
-import { cn } from "@/lib/utils";
-import { usePrivacy } from "@/providers/privacy-provider";
 import {
-  ArcElement,
-  ChartData,
-  Chart as ChartJS,
-  Legend,
-  Tooltip,
-} from "chart.js";
-import { useMemo } from "react";
-import { Doughnut } from "react-chartjs-2";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { PrivateValue } from "@/components/ui/private-value";
+import type { NetWorthBreakdownChartPoint } from "@/lib/charts/net-worth-breakdown";
+import { formatCurrency } from "@/lib/currency-formatting";
+import { cn } from "@/lib/utils";
+import { Cell, Pie, PieChart } from "recharts";
 
 interface NetWorthBreakdownChartProps {
   isLoading: boolean;
-  chartData: ChartData<"doughnut"> | null;
+  chartData: NetWorthBreakdownChartPoint[] | null;
+  homeCurrency: string;
   className?: string;
 }
 
 export function NetWorthBreakdownChart({
   isLoading,
   chartData,
+  homeCurrency,
   className,
 }: NetWorthBreakdownChartProps) {
-  const { isPrivacyMode } = usePrivacy();
-
-  const chartOptions = useMemo(
-    () => getNetworthBreakdownChartOptions(isPrivacyMode),
-    [isPrivacyMode],
-  );
+  const chartConfig = {
+    Assets: { label: "Assets" },
+    Liabilities: { label: "Liabilities" },
+  } as const;
 
   return (
-    <div className={cn("h-75 w-full", className)}>
+    <div className={cn("h-75 w-full min-h-[300px]", className)}>
       {isLoading ? (
         <div className="h-full flex items-center justify-center text-muted-foreground">
           Loading trend...
         </div>
       ) : chartData ? (
-        <Doughnut data={chartData} options={chartOptions} />
+        <ChartContainer config={chartConfig} className="h-full w-full">
+          <PieChart>
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  labelKey="name"
+                  formatter={(value) => (
+                    <PrivateValue
+                      value={formatCurrency(Number(value), homeCurrency)}
+                    />
+                  )}
+                />
+              }
+            />
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={70}
+              outerRadius={110}
+              strokeWidth={1}
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${entry.name}-${index}`} fill={entry.fill} />
+              ))}
+            </Pie>
+            <ChartLegend
+              content={<ChartLegendContent nameKey="name" />}
+              verticalAlign="bottom"
+            />
+          </PieChart>
+        </ChartContainer>
       ) : (
         <div className="h-full flex items-center justify-center text-muted-foreground">
           No data available

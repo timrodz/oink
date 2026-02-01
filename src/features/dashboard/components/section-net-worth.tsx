@@ -229,6 +229,7 @@ export function SectionNetWorth() {
                 <NetWorthBreakdownChart
                   isLoading={historyLoading}
                   chartData={breakdownChartData}
+                  homeCurrency={homeCurrency}
                   className="h-70"
                 />
               </div>
@@ -238,11 +239,13 @@ export function SectionNetWorth() {
                     isLoading={subCategoryLoading}
                     chartData={assetBreakdownData}
                     title="Assets by Sub-Category"
+                    homeCurrency={homeCurrency}
                   />
                   <SubCategoryBreakdownChart
                     isLoading={subCategoryLoading}
                     chartData={liabilityBreakdownData}
                     title="Liabilities by Sub-Category"
+                    homeCurrency={homeCurrency}
                   />
                 </>
               )}

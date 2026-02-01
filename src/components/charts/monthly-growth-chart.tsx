@@ -1,8 +1,4 @@
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import type { MonthlyGrowthChartPoint } from "@/lib/charts/monthly-growth";
 import { formatCurrencyCompact } from "@/lib/currency-formatting";
 import { toPrivateValue } from "@/lib/private-value";
@@ -54,28 +50,25 @@ export function MonthlyGrowthChart({
             />
             <ChartTooltip
               cursor={false}
-              content={
-                <ChartTooltipContent
-                  indicator="line"
-                  formatter={(value, name) => {
-                    const formattedValue =
-                      typeof value === "number"
-                        ? toPrivateValue(
-                            formatCurrencyCompact(value, homeCurrency),
-                            isPrivacyMode,
-                          )
-                        : value;
-                    return (
-                      <div className="flex flex-1 justify-between leading-none">
-                        <span className="text-muted-foreground">{name}</span>
-                        <span className="text-foreground font-mono font-medium tabular-nums">
-                          {formattedValue}
-                        </span>
-                      </div>
-                    );
-                  }}
-                />
-              }
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                const value = payload[0]?.value;
+                const formattedValue =
+                  typeof value === "number"
+                    ? toPrivateValue(
+                        formatCurrencyCompact(value, homeCurrency),
+                        isPrivacyMode,
+                      )
+                    : value;
+                return (
+                  <div className="border-border/50 bg-background grid min-w-32 items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl">
+                    <div className="font-medium">{label}</div>
+                    <div className="text-foreground font-mono font-medium tabular-nums">
+                      {formattedValue}
+                    </div>
+                  </div>
+                );
+              }}
             />
             <Bar dataKey="change" name="Monthly Growth" radius={[4, 4, 0, 0]}>
               {chartData.map((entry, index) => (

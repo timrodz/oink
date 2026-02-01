@@ -1,22 +1,22 @@
-import { getSubCategoryBreakdownChartOptions } from "@/lib/charts/sub-category-breakdown";
-import { cn } from "@/lib/utils";
-import { usePrivacy } from "@/providers/privacy-provider";
 import {
-  ArcElement,
-  ChartData,
-  Chart as ChartJS,
-  Legend,
-  Tooltip,
-} from "chart.js";
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { PrivateValue } from "@/components/ui/private-value";
+import type { SubCategoryBreakdownChartPoint } from "@/lib/charts/sub-category-breakdown";
+import { formatCurrency } from "@/lib/currency-formatting";
+import { cn } from "@/lib/utils";
 import { useMemo } from "react";
-import { Doughnut } from "react-chartjs-2";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import { Cell, Pie, PieChart } from "recharts";
 
 interface SubCategoryBreakdownChartProps {
   isLoading: boolean;
-  chartData: ChartData<"doughnut"> | null;
+  chartData: SubCategoryBreakdownChartPoint[] | null;
   title: string;
+  homeCurrency: string;
   className?: string;
 }
 
@@ -24,14 +24,15 @@ export function SubCategoryBreakdownChart({
   isLoading,
   chartData,
   title,
+  homeCurrency,
   className,
 }: SubCategoryBreakdownChartProps) {
-  const { isPrivacyMode } = usePrivacy();
-
-  const chartOptions = useMemo(
-    () => getSubCategoryBreakdownChartOptions(isPrivacyMode),
-    [isPrivacyMode],
-  );
+  const chartConfig = useMemo(() => {
+    if (!chartData) return {};
+    return Object.fromEntries(
+      chartData.map((item) => [item.name, { label: item.name }]),
+    );
+  }, [chartData]);
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -44,7 +45,38 @@ export function SubCategoryBreakdownChart({
             Loading...
           </div>
         ) : chartData ? (
-          <Doughnut data={chartData} options={chartOptions} />
+          <ChartContainer config={chartConfig} className="h-full w-full">
+            <PieChart>
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelKey="name"
+                    formatter={(value) => (
+                      <PrivateValue
+                        value={formatCurrency(Number(value), homeCurrency)}
+                      />
+                    )}
+                  />
+                }
+              />
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                innerRadius={70}
+                outerRadius={110}
+                strokeWidth={1}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${entry.name}-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <ChartLegend
+                content={<ChartLegendContent nameKey="name" />}
+                verticalAlign="bottom"
+              />
+            </PieChart>
+          </ChartContainer>
         ) : (
           <div className="h-full flex items-center justify-center text-muted-foreground">
             No data available

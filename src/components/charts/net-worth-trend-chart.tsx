@@ -1,11 +1,7 @@
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import type { NetWorthTrendChartPoint } from "@/lib/charts/net-worth-trend";
 import { NET_WORTH_TREND_COLORS } from "@/lib/constants/charts";
 import { formatCurrencyCompact } from "@/lib/currency-formatting";
-import type { NetWorthTrendChartPoint } from "@/lib/charts/net-worth-trend";
 import { toPrivateValue } from "@/lib/private-value";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
@@ -67,21 +63,25 @@ export function NetWorthTrendChart({
           />
           <ChartTooltip
             cursor={false}
-            content={
-              <ChartTooltipContent
-                indicator="line"
-                formatter={(value) => {
-                  const formattedValue =
-                    typeof value === "number"
-                      ? toPrivateValue(
-                          formatCurrencyCompact(value, homeCurrency),
-                          isPrivacyMode,
-                        )
-                      : value;
-                  return <div>{formattedValue}</div>;
-                }}
-              />
-            }
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+              const value = payload[0]?.value;
+              const formattedValue =
+                typeof value === "number"
+                  ? toPrivateValue(
+                      formatCurrencyCompact(value, homeCurrency),
+                      isPrivacyMode,
+                    )
+                  : value;
+              return (
+                <div className="border-border/50 bg-background grid min-w-32 items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl">
+                  <div className="font-medium">{label}</div>
+                  <div className="text-foreground font-mono font-medium tabular-nums">
+                    {formattedValue}
+                  </div>
+                </div>
+              );
+            }}
           />
           <Area
             dataKey="netWorth"
