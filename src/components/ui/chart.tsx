@@ -1,11 +1,13 @@
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
+import {
+  CHART_THEMES_CLASS,
+  RESPONSIVE_CHART_DEBOUNCE_MS,
+} from "@/lib/constants/charts";
 import { cn } from "@/lib/utils";
-import { RESPONSIVE_CHART_DEBOUNCE_MS } from "@/lib/constants/charts";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
-const THEMES = { light: "", dark: ".dark" } as const;
 
 export type ChartConfig = {
   [k in string]: {
@@ -13,7 +15,7 @@ export type ChartConfig = {
     icon?: React.ComponentType;
   } & (
     | { color?: string; theme?: never }
-    | { color?: never; theme: Record<keyof typeof THEMES, string> }
+    | { color?: never; theme: Record<keyof typeof CHART_THEMES_CLASS, string> }
   );
 };
 
@@ -82,7 +84,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   return (
     <style
       dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
+        __html: Object.entries(CHART_THEMES_CLASS)
           .map(
             ([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
@@ -350,9 +352,9 @@ function getPayloadConfigFromPayload(
 
 export {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  ChartTooltip,
+  ChartTooltipContent,
 };

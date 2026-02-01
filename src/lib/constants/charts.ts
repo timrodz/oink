@@ -2,6 +2,8 @@ import type { SubCategory } from "@/lib/types/categories";
 
 export const RESPONSIVE_CHART_DEBOUNCE_MS = 300;
 
+export const CHART_THEMES_CLASS = { light: "", dark: ".dark" } as const;
+
 export const SUB_CATEGORY_COLORS: Record<
   SubCategory | "uncategorized",
   { bg: string; border: string }
@@ -44,5 +46,3 @@ export const RETIREMENT_PROJECTION_POINT_COLORS = {
   highlight: "var(--color-chart-1)",
   default: "var(--color-chart-2)",
 };
-
-export const CHART_GRID_LINE_COLOR = "var(--color-border)";
