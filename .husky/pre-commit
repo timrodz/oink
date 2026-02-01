@@ -1,1 +1,6 @@
 bun lint-staged
+
+
+if git diff --cached --name-only | grep -E '\.(ts|tsx)$' > /dev/null; then
+  bun typecheck || exit 1
+fi
