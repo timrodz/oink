@@ -23,6 +23,7 @@ import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { getSubCategoryLabel } from "@/lib/categories";
 import type { Account } from "@/lib/types/accounts";
 import { cn } from "@/lib/utils";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -52,6 +53,7 @@ export function AccountRow({
   onToggleArchive,
   onRefresh,
 }: AccountRowProps) {
+  const { refresh: refreshSettings } = useUserSettingsContext();
   const {
     attributes,
     listeners,
@@ -138,6 +140,7 @@ export function AccountRow({
                 onComplete={() => {
                   onEditEnd();
                   onRefresh();
+                  void refreshSettings();
                 }}
               />
             </DialogContent>
