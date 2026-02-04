@@ -36,6 +36,13 @@ cargo test
 
 ## Progress screenshots
 
+### 05/02/2026
+
+![Screenshot-2026-02-05-08 16 35](https://github.com/user-attachments/assets/d505818f-ae54-47d4-90c7-c09c8db36808)
+![Screenshot-2026-02-05-08 27 47](https://github.com/user-attachments/assets/356656df-ff57-4332-b228-86dd794bce98)
+![Screenshot-2026-02-05-08 23 12](https://github.com/user-attachments/assets/e5b117ee-4f49-4266-b12f-a6dbfe24301e)
+![Screenshot-2026-02-05-08 25 29](https://github.com/user-attachments/assets/62b6605c-acb6-4ccc-ba09-bd042c101642)
+
 ### 20/01/2026
 
 Dashboard
