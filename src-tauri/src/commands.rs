@@ -4,6 +4,8 @@ use crate::models::{
 };
 use crate::services::account::AccountService;
 use crate::services::balance_sheet::BalanceSheetService;
+use crate::services::currency_rates::currency_rate::CurrencyRateService;
+use crate::services::currency_rates::sync::SyncService;
 use crate::services::entry::EntryService;
 use crate::services::net_worth::{NetWorthDataPoint, NetWorthService};
 use crate::services::onboarding::OnboardingService;
@@ -13,6 +15,7 @@ use crate::services::retirement_plan_projection::RetirementPlanProjectionService
 use crate::services::user_settings::UserSettingsService;
 use crate::AppState;
 use chrono::NaiveDate;
+use sqlx::SqlitePool;
 use tauri::State;
 
 // --- User Settings ---
@@ -52,6 +55,23 @@ pub async fn update_user_settings(
         .map_err(|e| e.to_string())
 }
 
+async fn mark_exchange_sync_needed_if_foreign(
+    pool: &SqlitePool,
+    currency: &str,
+) -> Result<(), String> {
+    let settings_list = UserSettingsService::get_all(pool).await?;
+    let settings = match settings_list.first() {
+        Some(settings) => settings,
+        None => return Ok(()),
+    };
+
+    if currency != settings.home_currency {
+        UserSettingsService::set_exchange_sync_needed(pool, true).await?;
+    }
+
+    Ok(())
+}
+
 // --- Accounts ---
 
 #[tauri::command]
@@ -78,7 +98,17 @@ pub async fn create_account(
     currency: String,
     sub_category: Option<String>,
 ) -> Result<Account, String> {
-    AccountService::upsert(&state.db, None, name, account_type, currency, sub_category).await
+    let account = AccountService::upsert(
+        &state.db,
+        None,
+        name,
+        account_type,
+        currency.clone(),
+        sub_category,
+    )
+    .await?;
+    mark_exchange_sync_needed_if_foreign(&state.db, &currency).await?;
+    Ok(account)
 }
 
 #[tauri::command]
@@ -90,15 +120,17 @@ pub async fn update_account(
     currency: String,
     sub_category: Option<String>,
 ) -> Result<Account, String> {
-    AccountService::upsert(
+    let account = AccountService::upsert(
         &state.db,
         Some(id),
         name,
         account_type,
-        currency,
+        currency.clone(),
         sub_category,
     )
-    .await
+    .await?;
+    mark_exchange_sync_needed_if_foreign(&state.db, &currency).await?;
+    Ok(account)
 }
 
 #[tauri::command]
@@ -131,9 +163,7 @@ pub async fn create_balance_sheet(
     // Trigger background sync
     let pool = state.db.clone();
     tauri::async_runtime::spawn(async move {
-        if let Err(e) =
-            crate::services::currency_exchange_sync::SyncService::sync_exchange_rates(&pool).await
-        {
+        if let Err(e) = SyncService::sync_exchange_rates(&pool).await {
             eprintln!("Failed to sync rates after creating balance sheet: {e}");
         }
     });
@@ -171,7 +201,17 @@ pub async fn upsert_entry(
 
 #[tauri::command]
 pub async fn get_currency_rates(state: State<'_, AppState>) -> Result<Vec<CurrencyRate>, String> {
-    crate::services::currency_rate::CurrencyRateService::get_all(&state.db).await
+    CurrencyRateService::get_all(&state.db).await
+}
+
+#[tauri::command]
+pub async fn sync_exchange_rates(state: State<'_, AppState>) -> Result<UserSettings, String> {
+    let _ = SyncService::sync_exchange_rates(&state.db).await?;
+    let settings = UserSettingsService::get_all(&state.db).await?;
+    settings
+        .into_iter()
+        .next()
+        .ok_or_else(|| "User settings not found".to_string())
 }
 
 #[tauri::command]
@@ -180,15 +220,18 @@ pub async fn upsert_currency_rate(
     id: Option<String>,
     from_currency: String,
     to_currency: String,
+    provider: Option<String>,
     rate: f64,
     month: u32,
     year: i32,
 ) -> Result<CurrencyRate, String> {
-    crate::services::currency_rate::CurrencyRateService::upsert(
+    let provider = provider.unwrap_or_else(|| "manual".to_string());
+    CurrencyRateService::upsert(
         &state.db,
         id,
         from_currency,
         to_currency,
+        provider,
         rate,
         month,
         year,
@@ -198,7 +241,7 @@ pub async fn upsert_currency_rate(
 
 #[tauri::command]
 pub async fn delete_currency_rate(state: State<'_, AppState>, id: String) -> Result<(), String> {
-    crate::services::currency_rate::CurrencyRateService::delete(&state.db, id).await
+    CurrencyRateService::delete(&state.db, id).await
 }
 
 // --- Onboarding ---

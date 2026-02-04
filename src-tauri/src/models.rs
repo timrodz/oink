@@ -9,6 +9,7 @@ pub struct UserSettings {
     pub name: String,
     pub home_currency: String,
     pub theme: String,
+    pub needs_exchange_sync: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -51,6 +52,7 @@ pub struct CurrencyRate {
     pub id: String,
     pub from_currency: String,
     pub to_currency: String,
+    pub provider: String,
     pub rate: f64,
     pub month: u32,
     pub year: i32,

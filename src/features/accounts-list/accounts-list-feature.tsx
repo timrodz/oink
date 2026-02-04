@@ -21,6 +21,7 @@ import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { api } from "@/lib/api";
 import { emitAccountsChanged } from "@/lib/events";
 import type { Account } from "@/lib/types/accounts";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import {
   DndContext,
   DragEndEvent,
@@ -45,6 +46,7 @@ interface AccountsListProps {
 }
 
 export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
+  const { refresh: refreshSettings } = useUserSettingsContext();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -170,6 +172,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
               onComplete={() => {
                 setIsAddOpen(false);
                 refreshAccounts();
+                void refreshSettings();
               }}
             />
           </DialogContent>

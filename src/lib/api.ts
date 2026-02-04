@@ -119,10 +119,15 @@ export const api = {
     return await invoke(COMMANDS.GET_CURRENCY_RATES);
   },
 
+  syncExchangeRates: async (): Promise<UserSettings> => {
+    return await invoke(COMMANDS.SYNC_EXCHANGE_RATES);
+  },
+
   upsertCurrencyRate: async (
     id: string | null,
     fromCurrency: string,
     toCurrency: string,
+    provider: string,
     rate: number,
     month: number,
     year: number,
@@ -131,6 +136,7 @@ export const api = {
       id,
       fromCurrency,
       toCurrency,
+      provider,
       rate,
       month,
       year,

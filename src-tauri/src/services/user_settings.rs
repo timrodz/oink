@@ -14,6 +14,7 @@ impl UserSettingsService {
     }
 
     // READ
+    #[allow(dead_code)]
     pub async fn get_by_id(pool: &SqlitePool, id: String) -> Result<Option<UserSettings>, String> {
         sqlx::query_as::<_, UserSettings>("SELECT * FROM user_settings WHERE id = ?")
             .bind(id)
@@ -65,7 +66,27 @@ impl UserSettingsService {
         }
     }
 
+    pub async fn set_exchange_sync_needed(
+        pool: &SqlitePool,
+        needs_exchange_sync: bool,
+    ) -> Result<UserSettings, String> {
+        let existing = Self::get_all(pool).await?;
+        let settings = existing
+            .first()
+            .ok_or_else(|| "User settings not found".to_string())?;
+
+        sqlx::query_as::<_, UserSettings>(
+            "UPDATE user_settings SET needs_exchange_sync = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *",
+        )
+        .bind(needs_exchange_sync)
+        .bind(&settings.id)
+        .fetch_one(pool)
+        .await
+        .map_err(|e| e.to_string())
+    }
+
     // DELETE
+    #[allow(dead_code)]
     pub async fn delete(pool: &SqlitePool, id: String) -> Result<(), String> {
         sqlx::query("DELETE FROM user_settings WHERE id = ?")
             .bind(id)
@@ -94,6 +115,7 @@ mod tests {
         assert_eq!(created.name, "Test User");
         assert_eq!(created.home_currency, "NZD");
         assert_eq!(created.theme, "system");
+        assert!(!created.needs_exchange_sync);
 
         // 2. Get All
         let all = UserSettingsService::get_all(&pool)
@@ -117,6 +139,11 @@ mod tests {
         assert_eq!(updated.home_currency, "USD");
         assert_eq!(updated.theme, "dark");
         assert_eq!(updated.id, created.id); // ID should remain same
+
+        let flagged = UserSettingsService::set_exchange_sync_needed(&pool, true)
+            .await
+            .expect("Failed to set exchange sync flag");
+        assert!(flagged.needs_exchange_sync);
 
         // 5. Delete
         UserSettingsService::delete(&pool, created.id.clone())
