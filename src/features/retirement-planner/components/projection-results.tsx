@@ -65,10 +65,8 @@ export function ProjectionResults({
       )
     : "shortfall";
 
-  const income3Class =
+  const incomeClass =
     income3Status === "onTrack" ? "text-emerald-600" : "text-amber-600";
-  const income4Class =
-    income4Status === "onTrack" ? "text-emerald-600" : "text-amber-600";
 
   return (
     <Card className="shadow-sm">
@@ -77,6 +75,7 @@ export function ProjectionResults({
         <CardDescription>
           Your retirement timeline and sustainable monthly income estimates.
         </CardDescription>
+        {/* TODO: Badge-ify this */}
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             {projectionModeLabel}
@@ -137,7 +136,7 @@ export function ProjectionResults({
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Sustainable income (3% rule)
                 </p>
-                <p className={`mt-2 text-lg font-semibold ${income3Class}`}>
+                <p className={`mt-2 text-lg font-semibold ${incomeClass}`}>
                   {formatCurrency(
                     projectionQuery.data.monthlyIncome3pct,
                     homeCurrency,
@@ -153,7 +152,7 @@ export function ProjectionResults({
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Sustainable income (4% rule)
                 </p>
-                <p className={`mt-2 text-lg font-semibold ${income4Class}`}>
+                <p className={`mt-2 text-lg font-semibold ${incomeClass}`}>
                   {formatCurrency(
                     projectionQuery.data.monthlyIncome4pct,
                     homeCurrency,

@@ -9,6 +9,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { InformationTooltip } from "@/components/ui/information-tooltip";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -272,14 +273,13 @@ export function InputForm({
                   <FieldLabel htmlFor="form-rhf-starting-net-worth">
                     Starting net worth
                   </FieldLabel>
-                  <Input
-                    {...field}
-                    {...form.register("startingNetWorth", {
-                      valueAsNumber: true,
-                    })}
+                  <CurrencyInput
                     id="form-rhf-starting-net-worth"
-                    type="number"
                     aria-invalid={fieldState.invalid}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    homeCurrency={homeCurrency}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -295,15 +295,14 @@ export function InputForm({
                   <FieldLabel htmlFor="form-rhf-monthly-contributions">
                     Monthly contributions ({homeCurrency})
                   </FieldLabel>
-                  <Input
-                    {...field}
-                    {...form.register("monthlyContribution", {
-                      valueAsNumber: true,
-                    })}
+                  <CurrencyInput
                     id="form-rhf-monthly-contributions"
-                    type="number"
                     aria-invalid={fieldState.invalid}
                     placeholder="$1,000.00"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    homeCurrency={homeCurrency}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -317,17 +316,16 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-expected-monthly-expenses">
-                    Expected monthly expenses ({homeCurrency})
+                    Monthly expenses ({homeCurrency})
                   </FieldLabel>
-                  <Input
-                    {...field}
-                    {...form.register("expectedMonthlyExpenses", {
-                      valueAsNumber: true,
-                    })}
+                  <CurrencyInput
                     id="form-rhf-expected-monthly-expenses"
-                    type="number"
                     aria-invalid={fieldState.invalid}
                     placeholder="$2,000.00"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    homeCurrency={homeCurrency}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
